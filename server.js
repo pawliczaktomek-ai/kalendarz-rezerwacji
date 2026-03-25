@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── Przechowywanie danych (plik JSON) ───────────────────────────────────────
+// ─── Przechowywanie danych ────────────────────────────────────────────────────
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
@@ -21,7 +21,21 @@ function loadData() {
   if (!fs.existsSync(DATA_FILE)) {
     fs.writeFileSync(DATA_FILE, JSON.stringify({ slots: [], bookings: [] }, null, 2));
   }
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+
+  // Migracja starego formatu (booked/booking → bookings[])
+  data.slots = data.slots.map(s => {
+    if (!s.bookings) {
+      s.bookings = (s.booked && s.booking) ? [s.booking] : [];
+      delete s.booking;
+    }
+    if (s.maxParticipants === undefined) s.maxParticipants = 4;
+    if (s.trainer === undefined) s.trainer = '';
+    if (s.location === undefined) s.location = '';
+    return s;
+  });
+
+  return data;
 }
 
 function saveData(data) {
@@ -39,7 +53,6 @@ async function sendSMS(to, body) {
     console.log(`[SMS – tryb testowy] Do: ${to}\nTreść: ${body}`);
     return;
   }
-  // Normalizacja numeru do formatu E.164
   let phone = to.replace(/\s+/g, '');
   if (phone.startsWith('0')) phone = '+48' + phone.slice(1);
   else if (!phone.startsWith('+')) phone = '+48' + phone;
@@ -76,10 +89,16 @@ async function addToGoogleCalendar(slot, booking) {
   }
   const event = {
     summary: `⚽ Trening – ${booking.playerName}`,
-    description: `Zawodnik: ${booking.playerName}\nTelefon: ${booking.phone}${booking.notes ? '\nUwagi: ' + booking.notes : ''}`,
+    description: [
+      `Zawodnik: ${booking.playerName}`,
+      `Telefon: ${booking.phone}`,
+      slot.trainer  ? `Trener: ${slot.trainer}`   : '',
+      slot.location ? `Miejsce: ${slot.location}` : '',
+      booking.notes ? `Uwagi: ${booking.notes}`   : '',
+    ].filter(Boolean).join('\n'),
     start: { dateTime: slot.start, timeZone: 'Europe/Warsaw' },
     end:   { dateTime: slot.end,   timeZone: 'Europe/Warsaw' },
-    colorId: '2', // zielony
+    colorId: '2',
   };
   try {
     const res = await calendar.events.insert({
@@ -133,42 +152,76 @@ function formatDate(isoString) {
 // API – SLOTY (wolne terminy)
 // ════════════════════════════════════════════════════════════
 
-// Pobierz wszystkie sloty (publiczne – bez szczegółów rezerwacji)
+// Pobierz wszystkie sloty (publiczne)
 app.get('/api/slots', (req, res) => {
   const data = loadData();
   const now = new Date();
-  // Zwróć sloty z przyszłości (lub ostatnich 1h dla widoku)
   const slots = data.slots
     .filter(s => new Date(s.end) >= new Date(now - 60 * 60 * 1000))
-    .map(s => ({
-      id: s.id,
-      title: s.booked ? '🔒 Zajęty' : '✅ Wolny',
-      start: s.start,
-      end: s.end,
-      booked: s.booked,
-      color: s.booked ? '#e74c3c' : '#27ae60',
-      textColor: '#ffffff',
-    }));
+    .map(s => {
+      const bookingsCount  = s.bookings ? s.bookings.length : 0;
+      const maxParticipants = s.maxParticipants || 4;
+      const isFull          = bookingsCount >= maxParticipants;
+      const spotsLeft       = maxParticipants - bookingsCount;
+
+      let title, color;
+      if (isFull) {
+        title = `🔒 Zajęty (${maxParticipants}/${maxParticipants})`;
+        color = '#e74c3c';
+      } else if (bookingsCount > 0) {
+        title = `🟡 Wolnych: ${spotsLeft}/${maxParticipants}`;
+        color = '#e67e22';
+      } else {
+        title = `✅ Wolny (${maxParticipants} miejsc)`;
+        color = '#27ae60';
+      }
+      if (s.trainer) title += ` · ${s.trainer}`;
+
+      return {
+        id: s.id,
+        title,
+        start: s.start,
+        end: s.end,
+        booked: isFull,
+        spotsLeft,
+        bookingsCount,
+        maxParticipants,
+        trainer:  s.trainer  || '',
+        location: s.location || '',
+        color,
+        textColor: '#ffffff',
+      };
+    });
   res.json(slots);
 });
 
 // Dodaj slot (admin)
 app.post('/api/slots', requireAdmin, (req, res) => {
-  const { start, end, repeat, repeatWeeks } = req.body;
+  const { start, end, repeat, repeatWeeks, trainer, location, maxParticipants } = req.body;
   if (!start || !end) return res.status(400).json({ error: 'Brakuje start lub end' });
 
   const data = loadData();
   const created = [];
+  const max = parseInt(maxParticipants) || 4;
 
   const addSlot = (s, e) => {
-    const slot = { id: uuidv4(), start: s, end: e, booked: false, booking: null, gcalEventId: null };
+    const slot = {
+      id: uuidv4(),
+      start: s,
+      end: e,
+      trainer:  trainer  || '',
+      location: location || '',
+      maxParticipants: max,
+      bookings: [],
+      booked: false,
+      gcalEventId: null,
+    };
     data.slots.push(slot);
     created.push(slot);
   };
 
   addSlot(start, end);
 
-  // Opcja: powtarzaj co tydzień
   if (repeat && repeatWeeks > 1) {
     const startDate = new Date(start);
     const endDate   = new Date(end);
@@ -190,22 +243,24 @@ app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
   if (!slot) return res.status(404).json({ error: 'Slot nie istnieje' });
 
   if (slot.gcalEventId) await deleteFromGoogleCalendar(slot.gcalEventId);
-  data.slots = data.slots.filter(s => s.id !== req.params.id);
+  // Usuń powiązane rezerwacje
+  const slotBookingIds = (slot.bookings || []).map(b => b.id);
+  data.slots    = data.slots.filter(s => s.id !== req.params.id);
+  data.bookings = data.bookings.filter(b => !slotBookingIds.includes(b.id));
   saveData(data);
   res.json({ success: true });
 });
 
-// Masowe dodawanie slotów na podstawie szablonu tygodniowego (admin)
+// Masowe dodawanie slotów (admin)
 app.post('/api/slots/bulk', requireAdmin, (req, res) => {
-  // body: { weeks: 4, schedule: [{ day: 1, hour: 9, minute: 0, durationMin: 60 }, ...] }
-  const { weeks = 4, schedule, startFrom } = req.body;
+  const { weeks = 4, schedule, startFrom, trainer, location, maxParticipants } = req.body;
   if (!schedule || !Array.isArray(schedule)) return res.status(400).json({ error: 'Brakuje schedule' });
 
   const data = loadData();
   const created = [];
   const baseDate = startFrom ? new Date(startFrom) : new Date();
+  const max = parseInt(maxParticipants) || 4;
 
-  // Wróć do poniedziałku bieżącego/następnego tygodnia
   const monday = new Date(baseDate);
   const dow = monday.getDay();
   const diff = dow === 0 ? 1 : (1 - dow);
@@ -215,11 +270,21 @@ app.post('/api/slots/bulk', requireAdmin, (req, res) => {
   for (let w = 0; w < weeks; w++) {
     for (const s of schedule) {
       const start = new Date(monday);
-      start.setDate(start.getDate() + w * 7 + (s.day - 1)); // day: 1=pon … 7=nd
+      start.setDate(start.getDate() + w * 7 + (s.day - 1));
       start.setHours(s.hour, s.minute || 0, 0, 0);
       const end = new Date(start);
       end.setMinutes(end.getMinutes() + (s.durationMin || 60));
-      const slot = { id: uuidv4(), start: start.toISOString(), end: end.toISOString(), booked: false, booking: null, gcalEventId: null };
+      const slot = {
+        id: uuidv4(),
+        start: start.toISOString(),
+        end:   end.toISOString(),
+        trainer:  trainer  || '',
+        location: location || '',
+        maxParticipants: max,
+        bookings: [],
+        booked: false,
+        gcalEventId: null,
+      };
       data.slots.push(slot);
       created.push(slot);
     }
@@ -241,8 +306,14 @@ app.post('/api/book', async (req, res) => {
 
   const data = loadData();
   const slot = data.slots.find(s => s.id === slotId);
-  if (!slot)        return res.status(404).json({ error: 'Termin nie istnieje' });
-  if (slot.booked)  return res.status(409).json({ error: 'Termin jest już zajęty' });
+  if (!slot) return res.status(404).json({ error: 'Termin nie istnieje' });
+
+  if (!slot.bookings) slot.bookings = [];
+  const maxParticipants = slot.maxParticipants || 4;
+
+  if (slot.bookings.length >= maxParticipants) {
+    return res.status(409).json({ error: 'Termin jest już w pełni zajęty' });
+  }
 
   const booking = {
     id: uuidv4(),
@@ -253,23 +324,25 @@ app.post('/api/book', async (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  slot.booked  = true;
-  slot.booking = booking;
+  slot.bookings.push(booking);
+  slot.booked = slot.bookings.length >= maxParticipants;
   data.bookings.push(booking);
 
-  // Google Calendar
   const gcalId = await addToGoogleCalendar(slot, booking);
   if (gcalId) slot.gcalEventId = gcalId;
 
   saveData(data);
 
-  const dateStr = formatDate(slot.start);
+  const dateStr     = formatDate(slot.start);
+  const trainerInfo = slot.trainer  ? ` Trener: ${slot.trainer}.`   : '';
+  const locationInfo= slot.location ? ` Miejsce: ${slot.location}.` : '';
+  const spotsLeft   = maxParticipants - slot.bookings.length;
 
   // SMS do zawodnika
   try {
     await sendSMS(
       phone,
-      `Cześć ${playerName}! 🎉 Twój trening został zarezerwowany na ${dateStr}. Do zobaczenia na boisku! – Centrum Szkolenia Piłkarza`
+      `Cześć ${playerName}! 🎉 Twój trening zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
     );
   } catch (e) {
     console.error('SMS do zawodnika – błąd:', e.message);
@@ -280,14 +353,19 @@ app.post('/api/book', async (req, res) => {
     try {
       await sendSMS(
         process.env.TRAINER_PHONE,
-        `📋 Nowa rezerwacja: ${playerName} (${phone}) – ${dateStr}`
+        `📋 Nowa rezerwacja: ${playerName} (${phone}) – ${dateStr}.${trainerInfo}${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
       );
     } catch (e) {
       console.error('SMS do trenera – błąd:', e.message);
     }
   }
 
-  res.json({ success: true, booking, message: `Rezerwacja potwierdzona! SMS wysłany na ${phone}.` });
+  res.json({
+    success: true,
+    booking,
+    spotsLeft,
+    message: `Rezerwacja potwierdzona! SMS wysłany na ${phone}. Wolnych miejsc: ${spotsLeft}/${maxParticipants}.`,
+  });
 });
 
 // Anuluj rezerwację (admin)
@@ -298,10 +376,13 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
 
   const slot = data.slots.find(s => s.id === booking.slotId);
   if (slot) {
-    if (slot.gcalEventId) await deleteFromGoogleCalendar(slot.gcalEventId);
-    slot.booked = false;
-    slot.booking = null;
-    slot.gcalEventId = null;
+    if (!slot.bookings) slot.bookings = [];
+    slot.bookings = slot.bookings.filter(b => b.id !== req.params.id);
+    slot.booked   = slot.bookings.length >= (slot.maxParticipants || 4);
+    if (slot.bookings.length === 0 && slot.gcalEventId) {
+      await deleteFromGoogleCalendar(slot.gcalEventId);
+      slot.gcalEventId = null;
+    }
   }
   data.bookings = data.bookings.filter(b => b.id !== req.params.id);
   saveData(data);
