@@ -199,6 +199,8 @@
     .booking-card .bc-date  { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
     .booking-card .bc-phone { color: #5dade2; }
     .booking-card .bc-meta  { color: var(--muted); font-size: .8rem; margin-top: .1rem; }
+    .booking-card .bc-meta a { color: #5dade2; text-decoration: none; }
+    .booking-card .bc-meta a:hover { text-decoration: underline; }
 
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
     .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .7rem; }
@@ -211,6 +213,12 @@
       margin: 1rem 0 .5rem; padding-bottom: .3rem;
       border-bottom: 1px solid #2a2a4a;
     }
+
+    /* Maps link style */
+    a.maps-link {
+      color: #5dade2; text-decoration: none; display: inline-flex; align-items: center; gap: .25rem;
+    }
+    a.maps-link:hover { text-decoration: underline; }
 
     /* ── Responsive ─────────────────────────────────── */
     @media (max-width: 640px) {
@@ -315,15 +323,34 @@
         </div>
       </div>
 
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
+      <div class="form-group">
+        <label>Typ wydarzenia</label>
+        <select id="addEventType">
+          <option value="trening">⚽ Trening</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
+        </select>
+      </div>
+
       <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
-          <input type="text" id="addTrainer" placeholder="np. Tomasz Kowalski"/>
+          <select id="addTrainer">
+            <option value="">-- Wybierz trenera --</option>
+            <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
-          <input type="text" id="addLocation" placeholder="np. Boisko główne"/>
+          <select id="addLocation">
+            <option value="">-- Wybierz miejsce --</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
+          </select>
         </div>
       </div>
 
@@ -367,15 +394,34 @@
         </div>
       </div>
 
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
+      <div class="form-group">
+        <label>Typ wydarzenia</label>
+        <select id="bulkEventType">
+          <option value="trening">⚽ Trening</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
+        </select>
+      </div>
+
       <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
-          <input type="text" id="bulkTrainer" placeholder="np. Tomasz Kowalski"/>
+          <select id="bulkTrainer">
+            <option value="">-- Wybierz trenera --</option>
+            <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
-          <input type="text" id="bulkLocation" placeholder="np. Boisko główne"/>
+          <select id="bulkLocation">
+            <option value="">-- Wybierz miejsce --</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
+          </select>
         </div>
       </div>
 
@@ -409,6 +455,48 @@
   let adminPassword  = null;
 
   const DAY_NAMES = ['', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+
+  // ── Lokalizacje z Google Maps ─────────────────────────────────────────
+  const LOCATIONS = {
+    'Orlik SP11': {
+      label: 'Orlik SP11 – ul. Spawaczy, Zielona Góra',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Orlik+SP11+ul.+Spawaczy+Zielona+G%C3%B3ra',
+    },
+    'Orlik ZE 10': {
+      label: 'Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Elektronowa+6E+Zielona+G%C3%B3ra',
+    },
+    'Kompleks Sportowy Sulechowska': {
+      label: 'Kompleks Sportowy Sulechowska – ul. Sulechowska 37',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Sulechowska+37+Zielona+G%C3%B3ra',
+    },
+  };
+
+  function locationHtml(loc) {
+    if (!loc) return '';
+    const info = LOCATIONS[loc];
+    if (info) {
+      return `<a class="maps-link" href="${info.mapsUrl}" target="_blank" rel="noopener">📍 ${info.label}</a>`;
+    }
+    return `📍 ${loc}`;
+  }
+
+  function locationText(loc) {
+    if (!loc) return '';
+    const info = LOCATIONS[loc];
+    return info ? info.label : loc;
+  }
+
+  // ── Etykieta typu wydarzenia ──────────────────────────────────────────
+  const EVENT_TYPE_LABELS = {
+    'trening': '⚽ Trening',
+    'analiza indywidualna': '🎥 Analiza indywidualna',
+    'analiza drużynowa': '📊 Analiza drużynowa',
+  };
+
+  function eventTypeLabel(t) {
+    return EVENT_TYPE_LABELS[t] || (t ? t : '');
+  }
 
   // ── Toast ─────────────────────────────────────────────────────────────
   function toast(msg, type = 'ok') {
@@ -474,8 +562,9 @@
       eventDidMount: info => {
         const p = info.event.extendedProps;
         const parts = [];
-        if (p.trainer)  parts.push(`Trener: ${p.trainer}`);
-        if (p.location) parts.push(`Miejsce: ${p.location}`);
+        if (p.eventType) parts.push(eventTypeLabel(p.eventType));
+        if (p.trainer)   parts.push(`Trener: ${p.trainer}`);
+        if (p.location)  parts.push(`Miejsce: ${locationText(p.location)}`);
         parts.push(`Wolnych miejsc: ${p.spotsLeft ?? '?'}/${p.maxParticipants ?? 4}`);
         info.el.title = parts.join(' | ');
       },
@@ -492,8 +581,9 @@
     const isPartial = typeof spotsLeft === 'number' && spotsLeft < maxParticipants && spotsLeft > 0;
 
     let info = `📅 <strong>${fmt(start)}</strong> – ${endTime}`;
-    if (props.trainer)  info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
-    if (props.location) info += `<br>📍 Miejsce: <strong>${props.location}</strong>`;
+    if (props.eventType) info += `<br>🏷️ <strong>${eventTypeLabel(props.eventType)}</strong>`;
+    if (props.trainer)   info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
+    if (props.location)  info += `<br>${locationHtml(props.location)}`;
     info += `<br>👥 Wolnych miejsc: <strong>${spotsLeft}/${maxParticipants}</strong>`;
 
     const infoEl = document.getElementById('slotInfo');
@@ -561,10 +651,11 @@
       const isFull    = s.booked;
       const isPartial = !isFull && s.bookingsCount > 0;
       const badgeClass = isFull ? 'badge-booked' : (isPartial ? 'badge-partial' : 'badge-free');
-      const meta = [
-        s.trainer  ? `👨‍🏫 ${s.trainer}`  : '',
-        s.location ? `📍 ${s.location}` : '',
-      ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+      const metaParts = [];
+      if (s.eventType) metaParts.push(eventTypeLabel(s.eventType));
+      if (s.trainer)   metaParts.push(`👨‍🏫 ${s.trainer}`);
+      if (s.location)  metaParts.push(locationHtml(s.location));
+      const meta = metaParts.join(' &nbsp;·&nbsp; ');
 
       return `
         <div class="slot-row">
@@ -585,8 +676,9 @@
     const end             = document.getElementById('addEnd').value;
     const repeat          = document.getElementById('addRepeat').checked;
     const repeatWeeks     = parseInt(document.getElementById('repeatWeeks').value) || 4;
-    const trainer         = document.getElementById('addTrainer').value.trim();
-    const location        = document.getElementById('addLocation').value.trim();
+    const eventType       = document.getElementById('addEventType').value;
+    const trainer         = document.getElementById('addTrainer').value;
+    const location        = document.getElementById('addLocation').value;
     const maxParticipants = parseInt(document.getElementById('addMaxParticipants').value) || 4;
 
     if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
@@ -599,7 +691,7 @@
         start: new Date(start).toISOString(),
         end:   new Date(end).toISOString(),
         repeat, repeatWeeks,
-        trainer, location, maxParticipants,
+        eventType, trainer, location, maxParticipants,
       }),
     });
     const d = await r.json();
@@ -645,8 +737,9 @@
     const weeks           = parseInt(document.getElementById('bulkWeeks').value) || 4;
     const duration        = parseInt(document.getElementById('bulkDuration').value) || 60;
     const maxParticipants = parseInt(document.getElementById('bulkMaxParticipants').value) || 4;
-    const trainer         = document.getElementById('bulkTrainer').value.trim();
-    const location        = document.getElementById('bulkLocation').value.trim();
+    const eventType       = document.getElementById('bulkEventType').value;
+    const trainer         = document.getElementById('bulkTrainer').value;
+    const location        = document.getElementById('bulkLocation').value;
     const rows            = document.querySelectorAll('#bulkSlotRows > div');
     const schedule        = [];
 
@@ -661,7 +754,7 @@
     const r = await fetch('/api/slots/bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword, weeks, schedule, trainer, location, maxParticipants }),
+      body: JSON.stringify({ adminPassword, weeks, schedule, eventType, trainer, location, maxParticipants }),
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
@@ -686,8 +779,9 @@
         <strong>⚽ ${b.playerName}</strong>
         <div class="bc-phone">📞 ${b.phone}</div>
         <div class="bc-date">📅 ${b.slot ? fmt(b.slot.start) : '–'}</div>
-        ${b.slot?.trainer  ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`  : ''}
-        ${b.slot?.location ? `<div class="bc-meta">📍 ${b.slot.location}</div>` : ''}
+        ${b.slot?.eventType ? `<div class="bc-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
+        ${b.slot?.trainer   ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`                 : ''}
+        ${b.slot?.location  ? `<div class="bc-meta">${locationHtml(b.slot.location)}</div>`      : ''}
         ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">💬 ${b.notes}</div>` : ''}
         <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .8rem;margin-top:.5rem"
           onclick="cancelBooking('${b.id}','${b.playerName}')">❌ Anuluj rezerwację</button>

@@ -66,8 +66,13 @@ function migrateSlots(slots) {
       delete s.booking;
     }
     if (s.maxParticipants === undefined) s.maxParticipants = 4;
-    if (s.trainer  === undefined) s.trainer  = '';
-    if (s.location === undefined) s.location = '';
+    if (s.trainer    === undefined) s.trainer    = '';
+    if (s.location   === undefined) s.location   = '';
+    if (s.eventType  === undefined) s.eventType  = 'trening';
+    // Uzupełnij trainerPhone dla starych slotów
+    if (!s.trainerPhone && s.trainer && TRAINER_PHONES[s.trainer]) {
+      s.trainerPhone = TRAINER_PHONES[s.trainer];
+    }
     return s;
   });
 }
@@ -140,6 +145,12 @@ async function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
+// ─── Mapowanie trenerów na numery telefonów ────────────────────────────────────
+const TRAINER_PHONES = {
+  'Tomasz Pawliczak': '+48607457102',
+  'Radosław Salwa':   '+48732962999',
+};
+
 // ─── Twilio ──────────────────────────────────────────────────────────────────
 let twilioClient = null;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
@@ -203,14 +214,18 @@ async function addToGoogleCalendar(slot, booking) {
     console.log('[Google Calendar – brak pliku service-account.json] Pomijam synchronizację.');
     return null;
   }
+  const evtLabel = slot.eventType
+    ? slot.eventType.charAt(0).toUpperCase() + slot.eventType.slice(1)
+    : 'Trening';
   const event = {
-    summary: `⚽ Trening – ${booking.playerName}`,
+    summary: `⚽ ${evtLabel} – ${booking.playerName}`,
     description: [
       `Zawodnik: ${booking.playerName}`,
       `Telefon: ${booking.phone}`,
-      slot.trainer  ? `Trener: ${slot.trainer}`   : '',
-      slot.location ? `Miejsce: ${slot.location}` : '',
-      booking.notes ? `Uwagi: ${booking.notes}`   : '',
+      slot.eventType ? `Typ: ${evtLabel}`           : '',
+      slot.trainer   ? `Trener: ${slot.trainer}`    : '',
+      slot.location  ? `Miejsce: ${slot.location}`  : '',
+      booking.notes  ? `Uwagi: ${booking.notes}`    : '',
     ].filter(Boolean).join('\n'),
     start: { dateTime: slot.start, timeZone: 'Europe/Warsaw' },
     end:   { dateTime: slot.end,   timeZone: 'Europe/Warsaw' },
@@ -302,8 +317,9 @@ app.get('/api/slots', async (req, res) => {
         spotsLeft,
         bookingsCount,
         maxParticipants,
-        trainer:  s.trainer  || '',
-        location: s.location || '',
+        eventType: s.eventType || 'trening',
+        trainer:   s.trainer   || '',
+        location:  s.location  || '',
         color,
         textColor: '#ffffff',
       };
@@ -313,20 +329,23 @@ app.get('/api/slots', async (req, res) => {
 
 // Dodaj slot (admin)
 app.post('/api/slots', requireAdmin, async (req, res) => {
-  const { start, end, repeat, repeatWeeks, trainer, location, maxParticipants } = req.body;
+  const { start, end, repeat, repeatWeeks, eventType, trainer, location, maxParticipants } = req.body;
   if (!start || !end) return res.status(400).json({ error: 'Brakuje start lub end' });
 
   const data = await loadData();
   const created = [];
   const max = parseInt(maxParticipants) || 4;
+  const trainerPhone = (trainer && TRAINER_PHONES[trainer]) ? TRAINER_PHONES[trainer] : null;
 
   const addSlot = (s, e) => {
     const slot = {
       id: uuidv4(),
       start: s,
       end: e,
-      trainer:  trainer  || '',
-      location: location || '',
+      eventType:    eventType    || 'trening',
+      trainer:      trainer      || '',
+      trainerPhone: trainerPhone || null,
+      location:     location     || '',
       maxParticipants: max,
       bookings: [],
       booked: false,
@@ -369,13 +388,14 @@ app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
 
 // Masowe dodawanie slotów (admin)
 app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
-  const { weeks = 4, schedule, startFrom, trainer, location, maxParticipants } = req.body;
+  const { weeks = 4, schedule, startFrom, eventType, trainer, location, maxParticipants } = req.body;
   if (!schedule || !Array.isArray(schedule)) return res.status(400).json({ error: 'Brakuje schedule' });
 
   const data = await loadData();
   const created = [];
   const baseDate = startFrom ? new Date(startFrom) : new Date();
   const max = parseInt(maxParticipants) || 4;
+  const trainerPhone = (trainer && TRAINER_PHONES[trainer]) ? TRAINER_PHONES[trainer] : null;
 
   const monday = new Date(baseDate);
   const dow = monday.getDay();
@@ -394,8 +414,10 @@ app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
         id: uuidv4(),
         start: start.toISOString(),
         end:   end.toISOString(),
-        trainer:  trainer  || '',
-        location: location || '',
+        eventType:    eventType    || 'trening',
+        trainer:      trainer      || '',
+        trainerPhone: trainerPhone || null,
+        location:     location     || '',
         maxParticipants: max,
         bookings: [],
         booked: false,
@@ -449,30 +471,45 @@ app.post('/api/book', async (req, res) => {
 
   await saveData(data);
 
-  const dateStr     = formatDate(slot.start);
-  const trainerInfo = slot.trainer  ? ` Trener: ${slot.trainer}.`   : '';
-  const locationInfo= slot.location ? ` Miejsce: ${slot.location}.` : '';
-  const spotsLeft   = maxParticipants - slot.bookings.length;
+  const dateStr      = formatDate(slot.start);
+  const eventLabel   = slot.eventType ? slot.eventType.charAt(0).toUpperCase() + slot.eventType.slice(1) : 'Trening';
+  const trainerInfo  = slot.trainer  ? ` Trener: ${slot.trainer}.`   : '';
+  const locationInfo = slot.location ? ` Miejsce: ${slot.location}.` : '';
+  const spotsLeft    = maxParticipants - slot.bookings.length;
 
   // SMS do zawodnika
   try {
     await sendSMS(
       phone,
-      `Cześć ${playerName}! 🎉 Twój trening zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
+      `Cześć ${playerName}! 🎉 ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
     );
   } catch (e) {
     console.error('SMS do zawodnika – błąd:', e.message);
   }
 
-  // SMS do trenera
-  if (process.env.TRAINER_PHONE) {
+  // SMS do trenera – wysyłamy do konkretnego trenera przypisanego do slotu
+  const trainerSmsNum = slot.trainerPhone
+    || (slot.trainer && TRAINER_PHONES[slot.trainer])
+    || null;
+
+  if (trainerSmsNum) {
     try {
       await sendSMS(
-        process.env.TRAINER_PHONE,
-        `📋 Nowa rezerwacja: ${playerName} (${phone}) – ${dateStr}.${trainerInfo}${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
+        trainerSmsNum,
+        `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
       );
     } catch (e) {
-      console.error('SMS do trenera – błąd:', e.message);
+      console.error(`SMS do trenera (${trainerSmsNum}) – błąd:`, e.message);
+    }
+  } else if (process.env.TRAINER_PHONE) {
+    // Fallback: wyślij do wszystkich (stare sloty bez przypisanego trenera)
+    const nums = process.env.TRAINER_PHONE.split(',').map(n => n.trim()).filter(Boolean);
+    for (const n of nums) {
+      try {
+        await sendSMS(n, `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
+      } catch (e) {
+        console.error(`SMS do trenera (${n}) – błąd:`, e.message);
+      }
     }
   }
 
