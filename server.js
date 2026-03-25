@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DATA_DIR  = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
-// Google Drive – trwałe przechowywanie danych (używa tego samego service account co Calendar)
+// Google Drive – trwałe przechowywanie danych (uŸywa tego samego service account co Calendar)
 const GDRIVE_FILENAME = 'csp-bookings.json';
 let _driveClient  = null;
 let _driveFileId  = null;   // zapamiętujemy ID pliku po pierwszym wyszukaniu
@@ -45,8 +45,11 @@ async function getDriveClient() {
 async function getDriveFileId(drive) {
   if (_driveFileId) return _driveFileId;
   try {
+    const folderClause = process.env.DRIVE_FOLDER_ID
+      ? ` and '${process.env.DRIVE_FOLDER_ID}' in parents`
+      : '';
     const res = await drive.files.list({
-      q: `name='${GDRIVE_FILENAME}' and trashed=false`,
+      q: `name='${GDRIVE_FILENAME}' and trashed=false${folderClause}`,
       spaces: 'drive',
       fields: 'files(id)',
     });
@@ -125,10 +128,14 @@ async function saveData(data) {
           media: { mimeType: 'application/json', body: Readable.from([content]) },
         });
       } else {
-        // Stwórz nowy plik
+        // Stwórz nowy plik (w folderze użytkownika jeśli DRIVE_FOLDER_ID ustawiony)
+        const requestBody = { name: GDRIVE_FILENAME, mimeType: 'application/json' };
+        if (process.env.DRIVE_FOLDER_ID) {
+          requestBody.parents = [process.env.DRIVE_FOLDER_ID];
+        }
         const res = await drive.files.create({
-          requestBody: { name: GDRIVE_FILENAME, mimeType: 'application/json' },
-          media:       { mimeType: 'application/json', body: Readable.from([content]) },
+          requestBody,
+          media: { mimeType: 'application/json', body: Readable.from([content]) },
           fields: 'id',
         });
         _driveFileId = res.data.id;
@@ -238,7 +245,7 @@ async function addToGoogleCalendar(slot, booking) {
     });
     return res.data.id;
   } catch (err) {
-    console.error('Google Calendar błąd:', err.message);
+    console.error('Google Calendar błąd*', err.message);
     return null;
   }
 }
@@ -450,7 +457,7 @@ app.post('/api/book', async (req, res) => {
   const maxParticipants = slot.maxParticipants || 4;
 
   if (slot.bookings.length >= maxParticipants) {
-    return res.status(409).json({ error: 'Termin jest już w pełni zajęty' });
+    return res.status(409).json({ error: 'Termin jest juŸ w pełni zajęty' });
   }
 
   const booking = {
@@ -484,7 +491,7 @@ app.post('/api/book', async (req, res) => {
       `Cześć ${playerName}! 🎉 ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
     );
   } catch (e) {
-    console.error('SMS do zawodnika – błąd:', e.message);
+    console.error('SMS do zawodnika – błąd*', e.message);
   }
 
   // SMS do trenera – wysyłamy do konkretnego trenera przypisanego do slotu
@@ -499,7 +506,7 @@ app.post('/api/book', async (req, res) => {
         `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
       );
     } catch (e) {
-      console.error(`SMS do trenera (${trainerSmsNum}) – błąd:`, e.message);
+      console.error(`SMS do trenera (${trainerSmsNum}) – błąd*`, e.message);
     }
   } else if (process.env.TRAINER_PHONE) {
     // Fallback: wyślij do wszystkich (stare sloty bez przypisanego trenera)
