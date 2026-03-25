@@ -69,13 +69,31 @@ let calendarClient = null;
 
 async function getCalendarClient() {
   if (calendarClient) return calendarClient;
-  const keyFile = path.join(__dirname, 'service-account.json');
-  if (!fs.existsSync(keyFile)) return null;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile,
-    scopes: ['https://www.googleapis.com/auth/calendar'],
-  });
+  let auth;
+
+  // Wariant 1: klucz jako zmienna środowiskowa (Render / produkcja)
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    try {
+      const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+      auth = new google.auth.GoogleAuth({
+        credentials,
+        scopes: ['https://www.googleapis.com/auth/calendar'],
+      });
+    } catch (e) {
+      console.error('Błąd parsowania GOOGLE_SERVICE_ACCOUNT_JSON:', e.message);
+      return null;
+    }
+  } else {
+    // Wariant 2: plik service-account.json (lokalne środowisko)
+    const keyFile = path.join(__dirname, 'service-account.json');
+    if (!fs.existsSync(keyFile)) return null;
+    auth = new google.auth.GoogleAuth({
+      keyFile,
+      scopes: ['https://www.googleapis.com/auth/calendar'],
+    });
+  }
+
   const authClient = await auth.getClient();
   calendarClient = google.calendar({ version: 'v3', auth: authClient });
   return calendarClient;
