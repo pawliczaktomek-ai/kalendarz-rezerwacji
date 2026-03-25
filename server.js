@@ -13,32 +13,130 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Przechowywanie danych ────────────────────────────────────────────────────
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR  = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
-function loadData() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DATA_FILE)) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify({ slots: [], bookings: [] }, null, 2));
-  }
-  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+// Google Drive – trwałe przechowywanie danych (używa tego samego service account co Calendar)
+const GDRIVE_FILENAME = 'csp-bookings.json';
+let _driveClient  = null;
+let _driveFileId  = null;   // zapamiętujemy ID pliku po pierwszym wyszukaniu
 
-  // Migracja starego formatu (booked/booking → bookings[])
-  data.slots = data.slots.map(s => {
+async function getDriveClient() {
+  if (_driveClient) return _driveClient;
+  if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) return null;
+  try {
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: [
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/calendar',
+      ],
+    });
+    const authClient = await auth.getClient();
+    _driveClient = google.drive({ version: 'v3', auth: authClient });
+    return _driveClient;
+  } catch (e) {
+    console.error('Google Drive błąd inicjalizacji:', e.message);
+    return null;
+  }
+}
+
+async function getDriveFileId(drive) {
+  if (_driveFileId) return _driveFileId;
+  try {
+    const res = await drive.files.list({
+      q: `name='${GDRIVE_FILENAME}' and trashed=false`,
+      spaces: 'drive',
+      fields: 'files(id)',
+    });
+    if (res.data.files && res.data.files.length > 0) {
+      _driveFileId = res.data.files[0].id;
+    }
+  } catch (e) {
+    console.error('Drive – błąd wyszukiwania pliku:', e.message);
+  }
+  return _driveFileId;
+}
+
+function migrateSlots(slots) {
+  return slots.map(s => {
     if (!s.bookings) {
       s.bookings = (s.booked && s.booking) ? [s.booking] : [];
       delete s.booking;
     }
     if (s.maxParticipants === undefined) s.maxParticipants = 4;
-    if (s.trainer === undefined) s.trainer = '';
+    if (s.trainer  === undefined) s.trainer  = '';
     if (s.location === undefined) s.location = '';
     return s;
   });
+}
 
+async function loadData() {
+  const drive = await getDriveClient();
+  if (drive) {
+    try {
+      const fileId = await getDriveFileId(drive);
+      if (fileId) {
+        const res = await drive.files.get(
+          { fileId, alt: 'media' },
+          { responseType: 'json' }
+        );
+        const data = res.data || { slots: [], bookings: [] };
+        if (!data.slots)    data.slots    = [];
+        if (!data.bookings) data.bookings = [];
+        data.slots = migrateSlots(data.slots);
+        return data;
+      }
+      // Plik jeszcze nie istnieje – zwróć puste dane
+      return { slots: [], bookings: [] };
+    } catch (e) {
+      console.error('Drive loadData błąd:', e.message);
+      // W razie błędu Drive, spróbuj lokalnego pliku
+    }
+  }
+  // Fallback: lokalny plik JSON (tryb developerski / brak Drive)
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify({ slots: [], bookings: [] }, null, 2));
+  }
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  data.slots = migrateSlots(data.slots);
   return data;
 }
 
-function saveData(data) {
+async function saveData(data) {
+  const drive = await getDriveClient();
+  if (drive) {
+    try {
+      const { Readable } = require('stream');
+      const content = JSON.stringify(data);
+      const fileId  = await getDriveFileId(drive);
+
+      if (fileId) {
+        // Zaktualizuj istniejący plik
+        await drive.files.update({
+          fileId,
+          media: { mimeType: 'application/json', body: Readable.from([content]) },
+        });
+      } else {
+        // Stwórz nowy plik
+        const res = await drive.files.create({
+          requestBody: { name: GDRIVE_FILENAME, mimeType: 'application/json' },
+          media:       { mimeType: 'application/json', body: Readable.from([content]) },
+          fields: 'id',
+        });
+        _driveFileId = res.data.id;
+        console.log(`✅  Google Drive – stworzono plik danych (id: ${_driveFileId})`);
+      }
+      return;
+    } catch (e) {
+      console.error('Drive saveData błąd:', e.message);
+      // Fallback do pliku lokalnego
+    }
+  }
+  // Fallback: lokalny plik JSON
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
@@ -171,8 +269,8 @@ function formatDate(isoString) {
 // ════════════════════════════════════════════════════════════
 
 // Pobierz wszystkie sloty (publiczne)
-app.get('/api/slots', (req, res) => {
-  const data = loadData();
+app.get('/api/slots', async (req, res) => {
+  const data = await loadData();
   const now = new Date();
   const slots = data.slots
     .filter(s => new Date(s.end) >= new Date(now - 60 * 60 * 1000))
@@ -214,11 +312,11 @@ app.get('/api/slots', (req, res) => {
 });
 
 // Dodaj slot (admin)
-app.post('/api/slots', requireAdmin, (req, res) => {
+app.post('/api/slots', requireAdmin, async (req, res) => {
   const { start, end, repeat, repeatWeeks, trainer, location, maxParticipants } = req.body;
   if (!start || !end) return res.status(400).json({ error: 'Brakuje start lub end' });
 
-  const data = loadData();
+  const data = await loadData();
   const created = [];
   const max = parseInt(maxParticipants) || 4;
 
@@ -250,13 +348,13 @@ app.post('/api/slots', requireAdmin, (req, res) => {
     }
   }
 
-  saveData(data);
+  await saveData(data);
   res.json({ success: true, slots: created });
 });
 
 // Usuń slot (admin)
 app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
-  const data = loadData();
+  const data = await loadData();
   const slot = data.slots.find(s => s.id === req.params.id);
   if (!slot) return res.status(404).json({ error: 'Slot nie istnieje' });
 
@@ -265,16 +363,16 @@ app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
   const slotBookingIds = (slot.bookings || []).map(b => b.id);
   data.slots    = data.slots.filter(s => s.id !== req.params.id);
   data.bookings = data.bookings.filter(b => !slotBookingIds.includes(b.id));
-  saveData(data);
+  await saveData(data);
   res.json({ success: true });
 });
 
 // Masowe dodawanie slotów (admin)
-app.post('/api/slots/bulk', requireAdmin, (req, res) => {
+app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
   const { weeks = 4, schedule, startFrom, trainer, location, maxParticipants } = req.body;
   if (!schedule || !Array.isArray(schedule)) return res.status(400).json({ error: 'Brakuje schedule' });
 
-  const data = loadData();
+  const data = await loadData();
   const created = [];
   const baseDate = startFrom ? new Date(startFrom) : new Date();
   const max = parseInt(maxParticipants) || 4;
@@ -307,7 +405,7 @@ app.post('/api/slots/bulk', requireAdmin, (req, res) => {
       created.push(slot);
     }
   }
-  saveData(data);
+  await saveData(data);
   res.json({ success: true, count: created.length, slots: created });
 });
 
@@ -322,7 +420,7 @@ app.post('/api/book', async (req, res) => {
     return res.status(400).json({ error: 'Brakuje slotId, playerName lub phone' });
   }
 
-  const data = loadData();
+  const data = await loadData();
   const slot = data.slots.find(s => s.id === slotId);
   if (!slot) return res.status(404).json({ error: 'Termin nie istnieje' });
 
@@ -349,7 +447,7 @@ app.post('/api/book', async (req, res) => {
   const gcalId = await addToGoogleCalendar(slot, booking);
   if (gcalId) slot.gcalEventId = gcalId;
 
-  saveData(data);
+  await saveData(data);
 
   const dateStr     = formatDate(slot.start);
   const trainerInfo = slot.trainer  ? ` Trener: ${slot.trainer}.`   : '';
@@ -388,7 +486,7 @@ app.post('/api/book', async (req, res) => {
 
 // Anuluj rezerwację (admin)
 app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
-  const data = loadData();
+  const data = await loadData();
   const booking = data.bookings.find(b => b.id === req.params.id);
   if (!booking) return res.status(404).json({ error: 'Rezerwacja nie istnieje' });
 
@@ -403,7 +501,7 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
     }
   }
   data.bookings = data.bookings.filter(b => b.id !== req.params.id);
-  saveData(data);
+  await saveData(data);
 
   // SMS o anulowaniu
   if (booking.phone) {
@@ -419,8 +517,8 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
 });
 
 // Lista rezerwacji (admin)
-app.get('/api/bookings', requireAdmin, (req, res) => {
-  const data = loadData();
+app.get('/api/bookings', requireAdmin, async (req, res) => {
+  const data = await loadData();
   const bookings = data.bookings.map(b => {
     const slot = data.slots.find(s => s.id === b.slotId);
     return { ...b, slot: slot || null };
