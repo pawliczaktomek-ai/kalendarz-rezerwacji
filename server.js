@@ -12,14 +12,14 @@ app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── Przechowywanie danych ────────────────────────────────────────────────────
+// âââ Przechowywanie danych ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const DATA_DIR  = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
-// Google Drive – trwałe przechowywanie danych (uŸywa tego samego service account co Calendar)
+// Google Drive â trwaÅe przechowywanie danych (uÅ¸ywa tego samego service account co Calendar)
 const GDRIVE_FILENAME = 'csp-bookings.json';
 let _driveClient  = null;
-let _driveFileId  = null;   // zapamiętujemy ID pliku po pierwszym wyszukaniu
+let _driveFileId  = null;   // zapamiÄtujemy ID pliku po pierwszym wyszukaniu
 
 async function getDriveClient() {
   if (_driveClient) return _driveClient;
@@ -37,7 +37,7 @@ async function getDriveClient() {
     _driveClient = google.drive({ version: 'v3', auth: authClient });
     return _driveClient;
   } catch (e) {
-    console.error('Google Drive błąd inicjalizacji:', e.message);
+    console.error('Google Drive bÅÄd inicjalizacji:', e.message);
     return null;
   }
 }
@@ -57,7 +57,7 @@ async function getDriveFileId(drive) {
       _driveFileId = res.data.files[0].id;
     }
   } catch (e) {
-    console.error('Drive – błąd wyszukiwania pliku:', e.message);
+    console.error('Drive â bÅÄd wyszukiwania pliku:', e.message);
   }
   return _driveFileId;
 }
@@ -72,7 +72,7 @@ function migrateSlots(slots) {
     if (s.trainer    === undefined) s.trainer    = '';
     if (s.location   === undefined) s.location   = '';
     if (s.eventType  === undefined) s.eventType  = 'trening';
-    // Uzupełnij trainerPhone dla starych slotów
+    // UzupeÅnij trainerPhone dla starych slotÃ³w
     if (!s.trainerPhone && s.trainer && TRAINER_PHONES[s.trainer]) {
       s.trainerPhone = TRAINER_PHONES[s.trainer];
     }
@@ -96,11 +96,11 @@ async function loadData() {
         data.slots = migrateSlots(data.slots);
         return data;
       }
-      // Plik jeszcze nie istnieje – zwróć puste dane
+      // Plik jeszcze nie istnieje â zwrÃ³Ä puste dane
       return { slots: [], bookings: [] };
     } catch (e) {
-      console.error('Drive loadData błąd:', e.message);
-      // W razie błędu Drive, spróbuj lokalnego pliku
+      console.error('Drive loadData bÅÄd:', e.message);
+      // W razie bÅÄdu Drive, sprÃ³buj lokalnego pliku
     }
   }
   // Fallback: lokalny plik JSON (tryb developerski / brak Drive)
@@ -122,13 +122,13 @@ async function saveData(data) {
       const fileId  = await getDriveFileId(drive);
 
       if (fileId) {
-        // Zaktualizuj istniejący plik
+        // Zaktualizuj istniejÄcy plik
         await drive.files.update({
           fileId,
           media: { mimeType: 'application/json', body: Readable.from([content]) },
         });
       } else {
-        // Stwórz nowy plik (w folderze użytkownika jeśli DRIVE_FOLDER_ID ustawiony)
+        // StwÃ³rz nowy plik (w folderze uÅ¼ytkownika jeÅli DRIVE_FOLDER_ID ustawiony)
         const requestBody = { name: GDRIVE_FILENAME, mimeType: 'application/json' };
         if (process.env.DRIVE_FOLDER_ID) {
           requestBody.parents = [process.env.DRIVE_FOLDER_ID];
@@ -139,11 +139,11 @@ async function saveData(data) {
           fields: 'id',
         });
         _driveFileId = res.data.id;
-        console.log(`✅  Google Drive – stworzono plik danych (id: ${_driveFileId})`);
+        console.log(`â  Google Drive â stworzono plik danych (id: ${_driveFileId})`);
       }
       return;
     } catch (e) {
-      console.error('Drive saveData błąd:', e.message);
+      console.error('Drive saveData bÅÄd:', e.message);
       // Fallback do pliku lokalnego
     }
   }
@@ -152,13 +152,13 @@ async function saveData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-// ─── Mapowanie trenerów na numery telefonów ────────────────────────────────────
+// âââ Mapowanie trenerÃ³w na numery telefonÃ³w ââââââââââââââââââââââââââââââââââââ
 const TRAINER_PHONES = {
   'Tomasz Pawliczak': '+48607457102',
-  'Radosław Salwa':   '+48732962999',
+  'RadosÅaw Salwa':   '+48732962999',
 };
 
-// ─── Twilio ──────────────────────────────────────────────────────────────────
+// âââ Twilio ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let twilioClient = null;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
   twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -166,21 +166,23 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 
 async function sendSMS(to, body) {
   if (!twilioClient) {
-    console.log(`[SMS – tryb testowy] Do: ${to}\nTreść: ${body}`);
+    console.log(`[SMS â tryb testowy] Do: ${to}\nTreÅÄ: ${body}`);
     return;
   }
   let phone = to.replace(/\s+/g, '');
   if (phone.startsWith('0')) phone = '+48' + phone.slice(1);
   else if (!phone.startsWith('+')) phone = '+48' + phone;
 
-  await twilioClient.messages.create({
-    body,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phone,
-  });
+  const msgParams = { body, to: phone };
+  if (process.env.TWILIO_MESSAGING_SERVICE_SID) {
+    msgParams.messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+  } else {
+    msgParams.from = process.env.TWILIO_PHONE_NUMBER;
+  }
+  await twilioClient.messages.create(msgParams);
 }
 
-// ─── Google Calendar ─────────────────────────────────────────────────────────
+// âââ Google Calendar âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let calendarClient = null;
 
 async function getCalendarClient() {
@@ -188,7 +190,7 @@ async function getCalendarClient() {
 
   let auth;
 
-  // Wariant 1: klucz jako zmienna środowiskowa (Render / produkcja)
+  // Wariant 1: klucz jako zmienna Årodowiskowa (Render / produkcja)
   if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
     try {
       const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
@@ -197,11 +199,11 @@ async function getCalendarClient() {
         scopes: ['https://www.googleapis.com/auth/calendar'],
       });
     } catch (e) {
-      console.error('Błąd parsowania GOOGLE_SERVICE_ACCOUNT_JSON:', e.message);
+      console.error('BÅÄd parsowania GOOGLE_SERVICE_ACCOUNT_JSON:', e.message);
       return null;
     }
   } else {
-    // Wariant 2: plik service-account.json (lokalne środowisko)
+    // Wariant 2: plik service-account.json (lokalne Årodowisko)
     const keyFile = path.join(__dirname, 'service-account.json');
     if (!fs.existsSync(keyFile)) return null;
     auth = new google.auth.GoogleAuth({
@@ -218,14 +220,14 @@ async function getCalendarClient() {
 async function addToGoogleCalendar(slot, booking) {
   const calendar = await getCalendarClient();
   if (!calendar) {
-    console.log('[Google Calendar – brak pliku service-account.json] Pomijam synchronizację.');
+    console.log('[Google Calendar â brak pliku service-account.json] Pomijam synchronizacjÄ.');
     return null;
   }
   const evtLabel = slot.eventType
     ? slot.eventType.charAt(0).toUpperCase() + slot.eventType.slice(1)
     : 'Trening';
   const event = {
-    summary: `⚽ ${evtLabel} – ${booking.playerName}`,
+    summary: `â½ ${evtLabel} â ${booking.playerName}`,
     description: [
       `Zawodnik: ${booking.playerName}`,
       `Telefon: ${booking.phone}`,
@@ -245,7 +247,7 @@ async function addToGoogleCalendar(slot, booking) {
     });
     return res.data.id;
   } catch (err) {
-    console.error('Google Calendar błąd*', err.message);
+    console.error('Google Calendar bÅÄd*', err.message);
     return null;
   }
 }
@@ -259,21 +261,21 @@ async function deleteFromGoogleCalendar(eventId) {
       eventId,
     });
   } catch (err) {
-    console.error('Google Calendar błąd przy usuwaniu:', err.message);
+    console.error('Google Calendar bÅÄd przy usuwaniu:', err.message);
   }
 }
 
-// ─── Middleware weryfikacji admina ────────────────────────────────────────────
+// âââ Middleware weryfikacji admina ââââââââââââââââââââââââââââââââââââââââââââ
 function requireAdmin(req, res, next) {
   const pwd = req.body?.adminPassword || req.query?.adminPassword || req.headers['x-admin-password'];
   const configured = process.env.ADMIN_PASSWORD || 'admin123';
   if (pwd !== configured) {
-    return res.status(401).json({ error: 'Błędne hasło administratora' });
+    return res.status(401).json({ error: 'BÅÄdne hasÅo administratora' });
   }
   next();
 }
 
-// ─── Formatowanie daty po polsku ──────────────────────────────────────────────
+// âââ Formatowanie daty po polsku ââââââââââââââââââââââââââââââââââââââââââââââ
 function formatDate(isoString) {
   return new Date(isoString).toLocaleString('pl-PL', {
     timeZone: 'Europe/Warsaw',
@@ -286,9 +288,9 @@ function formatDate(isoString) {
   });
 }
 
-// ════════════════════════════════════════════════════════════
-// API – SLOTY (wolne terminy)
-// ════════════════════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// API â SLOTY (wolne terminy)
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 // Pobierz wszystkie sloty (publiczne)
 app.get('/api/slots', async (req, res) => {
@@ -304,16 +306,16 @@ app.get('/api/slots', async (req, res) => {
 
       let title, color;
       if (isFull) {
-        title = `🔒 Zajęty (${maxParticipants}/${maxParticipants})`;
+        title = `ð ZajÄty (${maxParticipants}/${maxParticipants})`;
         color = '#e74c3c';
       } else if (bookingsCount > 0) {
-        title = `🟡 Wolnych: ${spotsLeft}/${maxParticipants}`;
+        title = `ð¡ Wolnych: ${spotsLeft}/${maxParticipants}`;
         color = '#e67e22';
       } else {
-        title = `✅ Wolny (${maxParticipants} miejsc)`;
+        title = `â Wolny (${maxParticipants} miejsc)`;
         color = '#27ae60';
       }
-      if (s.trainer) title += ` · ${s.trainer}`;
+      if (s.trainer) title += ` Â· ${s.trainer}`;
 
       return {
         id: s.id,
@@ -378,14 +380,14 @@ app.post('/api/slots', requireAdmin, async (req, res) => {
   res.json({ success: true, slots: created });
 });
 
-// Usuń slot (admin)
+// UsuÅ slot (admin)
 app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
   const data = await loadData();
   const slot = data.slots.find(s => s.id === req.params.id);
   if (!slot) return res.status(404).json({ error: 'Slot nie istnieje' });
 
   if (slot.gcalEventId) await deleteFromGoogleCalendar(slot.gcalEventId);
-  // Usuń powiązane rezerwacje
+  // UsuÅ powiÄzane rezerwacje
   const slotBookingIds = (slot.bookings || []).map(b => b.id);
   data.slots    = data.slots.filter(s => s.id !== req.params.id);
   data.bookings = data.bookings.filter(b => !slotBookingIds.includes(b.id));
@@ -393,7 +395,7 @@ app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-// Masowe dodawanie slotów (admin)
+// Masowe dodawanie slotÃ³w (admin)
 app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
   const { weeks = 4, schedule, startFrom, eventType, trainer, location, maxParticipants } = req.body;
   if (!schedule || !Array.isArray(schedule)) return res.status(400).json({ error: 'Brakuje schedule' });
@@ -438,9 +440,9 @@ app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
   res.json({ success: true, count: created.length, slots: created });
 });
 
-// ════════════════════════════════════════════════════════════
-// API – REZERWACJE
-// ════════════════════════════════════════════════════════════
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// API â REZERWACJE
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 // Dokonaj rezerwacji (publiczne)
 app.post('/api/book', async (req, res) => {
@@ -457,7 +459,7 @@ app.post('/api/book', async (req, res) => {
   const maxParticipants = slot.maxParticipants || 4;
 
   if (slot.bookings.length >= maxParticipants) {
-    return res.status(409).json({ error: 'Termin jest juŸ w pełni zajęty' });
+    return res.status(409).json({ error: 'Termin jest juÅ¸ w peÅni zajÄty' });
   }
 
   const booking = {
@@ -488,13 +490,13 @@ app.post('/api/book', async (req, res) => {
   try {
     await sendSMS(
       phone,
-      `Cześć ${playerName}! 🎉 ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
+      `CzeÅÄ ${playerName}! ð ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! â Centrum Szkolenia PiÅkarza`
     );
   } catch (e) {
-    console.error('SMS do zawodnika – błąd*', e.message);
+    console.error('SMS do zawodnika â bÅÄd*', e.message);
   }
 
-  // SMS do trenera – wysyłamy do konkretnego trenera przypisanego do slotu
+  // SMS do trenera â wysyÅamy do konkretnego trenera przypisanego do slotu
   const trainerSmsNum = slot.trainerPhone
     || (slot.trainer && TRAINER_PHONES[slot.trainer])
     || null;
@@ -503,19 +505,19 @@ app.post('/api/book', async (req, res) => {
     try {
       await sendSMS(
         trainerSmsNum,
-        `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
+        `ð Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) â ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
       );
     } catch (e) {
-      console.error(`SMS do trenera (${trainerSmsNum}) – błąd*`, e.message);
+      console.error(`SMS do trenera (${trainerSmsNum}) â bÅÄd*`, e.message);
     }
   } else if (process.env.TRAINER_PHONE) {
-    // Fallback: wyślij do wszystkich (stare sloty bez przypisanego trenera)
+    // Fallback: wyÅlij do wszystkich (stare sloty bez przypisanego trenera)
     const nums = process.env.TRAINER_PHONE.split(',').map(n => n.trim()).filter(Boolean);
     for (const n of nums) {
       try {
-        await sendSMS(n, `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
+        await sendSMS(n, `ð Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) â ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
       } catch (e) {
-        console.error(`SMS do trenera (${n}) – błąd:`, e.message);
+        console.error(`SMS do trenera (${n}) â bÅÄd:`, e.message);
       }
     }
   }
@@ -524,11 +526,11 @@ app.post('/api/book', async (req, res) => {
     success: true,
     booking,
     spotsLeft,
-    message: `Rezerwacja potwierdzona! SMS wysłany na ${phone}. Wolnych miejsc: ${spotsLeft}/${maxParticipants}.`,
+    message: `Rezerwacja potwierdzona! SMS wysÅany na ${phone}. Wolnych miejsc: ${spotsLeft}/${maxParticipants}.`,
   });
 });
 
-// Anuluj rezerwację (admin)
+// Anuluj rezerwacjÄ (admin)
 app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
   const data = await loadData();
   const booking = data.bookings.find(b => b.id === req.params.id);
@@ -552,7 +554,7 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
     try {
       await sendSMS(
         booking.phone,
-        `Cześć ${booking.playerName}, Twój trening został anulowany przez trenera. Skontaktuj się w celu rezerwacji nowego terminu. – Centrum Szkolenia Piłkarza`
+        `CzeÅÄ ${booking.playerName}, TwÃ³j trening zostaÅ anulowany przez trenera. Skontaktuj siÄ w celu rezerwacji nowego terminu. â Centrum Szkolenia PiÅkarza`
       );
     } catch (e) { /* ignoruj */ }
   }
@@ -570,12 +572,12 @@ app.get('/api/bookings', requireAdmin, async (req, res) => {
   res.json(bookings);
 });
 
-// ─── Start serwera ────────────────────────────────────────────────────────────
+// âââ Start serwera ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n⚽  Kalendarz rezerwacji działa na http://localhost:${PORT}`);
-  console.log(`🔑  Hasło admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
-  if (!twilioClient) console.log('⚠️   Twilio nie skonfigurowane – SMS działają w trybie testowym (konsola)');
+  console.log(`\nâ½  Kalendarz rezerwacji dziaÅa na http://localhost:${PORT}`);
+  console.log(`ð  HasÅo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
+  if (!twilioClient) console.log('â ï¸   Twilio nie skonfigurowane â SMS dziaÅajÄ w trybie testowym (konsola)');
   if (!fs.existsSync(path.join(__dirname, 'service-account.json')))
-    console.log('⚠️   Google Calendar nie skonfigurowane – brak service-account.json');
+    console.log('â ï¸   Google Calendar nie skonfigurowane â brak service-account.json');
 });
