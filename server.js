@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DATA_DIR  = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
-// Google Drive – trwałe przechowywanie danych (uŸywa tego samego service account co Calendar)
+// Google Drive – trwałe przechowywanie danych (używa tego samego service account co Calendar)
 const GDRIVE_FILENAME = 'csp-bookings.json';
 let _driveClient  = null;
 let _driveFileId  = null;   // zapamiętujemy ID pliku po pierwszym wyszukaniu
@@ -29,7 +29,7 @@ async function getDriveClient() {
     const auth = new google.auth.GoogleAuth({
       credentials,
       scopes: [
-        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/calendar',
       ],
     });
@@ -71,7 +71,7 @@ function migrateSlots(slots) {
     if (s.maxParticipants === undefined) s.maxParticipants = 4;
     if (s.trainer    === undefined) s.trainer    = '';
     if (s.location   === undefined) s.location   = '';
-    if (s.eventType  === undefined) s.eventType  = 'trening';
+    if (s.eventType  === undefined) s.eventType  = 'trening indywidualny';
     // Uzupełnij trainerPhone dla starych slotów
     if (!s.trainerPhone && s.trainer && TRAINER_PHONES[s.trainer]) {
       s.trainerPhone = TRAINER_PHONES[s.trainer];
@@ -139,7 +139,7 @@ async function saveData(data) {
           fields: 'id',
         });
         _driveFileId = res.data.id;
-        console.log(`✅  Google Drive – stworzono plik danych (id: ${_driveFileId})`);
+        console.log(`[OK] Google Drive - stworzono plik danych (id: ${_driveFileId})`);
       }
       return;
     } catch (e) {
@@ -173,11 +173,13 @@ async function sendSMS(to, body) {
   if (phone.startsWith('0')) phone = '+48' + phone.slice(1);
   else if (!phone.startsWith('+')) phone = '+48' + phone;
 
-  await twilioClient.messages.create({
-    body,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phone,
-  });
+  const msgParams = { body, to: phone };
+  if (process.env.TWILIO_MESSAGING_SERVICE_SID) {
+    msgParams.messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+  } else {
+    msgParams.from = process.env.TWILIO_PHONE_NUMBER;
+  }
+  await twilioClient.messages.create(msgParams);
 }
 
 // ─── Google Calendar ─────────────────────────────────────────────────────────
@@ -225,7 +227,7 @@ async function addToGoogleCalendar(slot, booking) {
     ? slot.eventType.charAt(0).toUpperCase() + slot.eventType.slice(1)
     : 'Trening';
   const event = {
-    summary: `⚽ ${evtLabel} – ${booking.playerName}`,
+    summary: `${evtLabel} - ${booking.playerName}`,
     description: [
       `Zawodnik: ${booking.playerName}`,
       `Telefon: ${booking.phone}`,
@@ -245,7 +247,7 @@ async function addToGoogleCalendar(slot, booking) {
     });
     return res.data.id;
   } catch (err) {
-    console.error('Google Calendar błąd*', err.message);
+    console.error('Google Calendar błąd ', err.message);
     return null;
   }
 }
@@ -304,16 +306,16 @@ app.get('/api/slots', async (req, res) => {
 
       let title, color;
       if (isFull) {
-        title = `🔒 Zajęty (${maxParticipants}/${maxParticipants})`;
+        title = `Zajety (${maxParticipants}/${maxParticipants})`;
         color = '#e74c3c';
       } else if (bookingsCount > 0) {
-        title = `🟡 Wolnych: ${spotsLeft}/${maxParticipants}`;
+        title = `Wolnych: ${spotsLeft}/${maxParticipants}`;
         color = '#e67e22';
       } else {
-        title = `✅ Wolny (${maxParticipants} miejsc)`;
+        title = `Wolny (${maxParticipants} miejsc)`;
         color = '#27ae60';
       }
-      if (s.trainer) title += ` · ${s.trainer}`;
+      if (s.trainer) title += ` - ${s.trainer}`;
 
       return {
         id: s.id,
@@ -324,7 +326,7 @@ app.get('/api/slots', async (req, res) => {
         spotsLeft,
         bookingsCount,
         maxParticipants,
-        eventType: s.eventType || 'trening',
+        eventType: s.eventType || 'trening indywidualny',
         trainer:   s.trainer   || '',
         location:  s.location  || '',
         color,
@@ -349,7 +351,7 @@ app.post('/api/slots', requireAdmin, async (req, res) => {
       id: uuidv4(),
       start: s,
       end: e,
-      eventType:    eventType    || 'trening',
+      eventType:    eventType    || 'trening indywidualny',
       trainer:      trainer      || '',
       trainerPhone: trainerPhone || null,
       location:     location     || '',
@@ -421,7 +423,7 @@ app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
         id: uuidv4(),
         start: start.toISOString(),
         end:   end.toISOString(),
-        eventType:    eventType    || 'trening',
+        eventType:    eventType    || 'trening indywidualny',
         trainer:      trainer      || '',
         trainerPhone: trainerPhone || null,
         location:     location     || '',
@@ -457,7 +459,7 @@ app.post('/api/book', async (req, res) => {
   const maxParticipants = slot.maxParticipants || 4;
 
   if (slot.bookings.length >= maxParticipants) {
-    return res.status(409).json({ error: 'Termin jest juŸ w pełni zajęty' });
+    return res.status(409).json({ error: 'Termin jest już w pełni zajęty' });
   }
 
   const booking = {
@@ -488,10 +490,10 @@ app.post('/api/book', async (req, res) => {
   try {
     await sendSMS(
       phone,
-      `Cześć ${playerName}! 🎉 ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! – Centrum Szkolenia Piłkarza`
+      `Czesc ${playerName}! ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! - CSPilkarza`
     );
   } catch (e) {
-    console.error('SMS do zawodnika – błąd*', e.message);
+    console.error('SMS do zawodnika – błąd ', e.message);
   }
 
   // SMS do trenera – wysyłamy do konkretnego trenera przypisanego do slotu
@@ -503,19 +505,19 @@ app.post('/api/book', async (req, res) => {
     try {
       await sendSMS(
         trainerSmsNum,
-        `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
+        `Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) - ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`
       );
     } catch (e) {
-      console.error(`SMS do trenera (${trainerSmsNum}) – błąd*`, e.message);
+      console.error(`SMS do trenera (${trainerSmsNum}) – błąd:`, e.message);
     }
   } else if (process.env.TRAINER_PHONE) {
     // Fallback: wyślij do wszystkich (stare sloty bez przypisanego trenera)
     const nums = process.env.TRAINER_PHONE.split(',').map(n => n.trim()).filter(Boolean);
     for (const n of nums) {
       try {
-        await sendSMS(n, `📋 Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) – ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
+        await sendSMS(n, `Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) - ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
       } catch (e) {
-        console.error(`SMS do trenera (${n}) – błąd:`, e.message);
+        console.error(`SMS do trenera (${n}) – błąd*`, e.message);
       }
     }
   }
@@ -552,7 +554,7 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
     try {
       await sendSMS(
         booking.phone,
-        `Cześć ${booking.playerName}, Twój trening został anulowany przez trenera. Skontaktuj się w celu rezerwacji nowego terminu. – Centrum Szkolenia Piłkarza`
+        `Trening anulowany przez trenera. Skontaktuj sie w celu rezerwacji nowego terminu. - CSPilkarza`
       );
     } catch (e) { /* ignoruj */ }
   }
@@ -573,9 +575,9 @@ app.get('/api/bookings', requireAdmin, async (req, res) => {
 // ─── Start serwera ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\n⚽  Kalendarz rezerwacji działa na http://localhost:${PORT}`);
-  console.log(`🔑  Hasło admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
-  if (!twilioClient) console.log('⚠️   Twilio nie skonfigurowane – SMS działają w trybie testowym (konsola)');
+  console.log(`\nKalendarz rezerwacji dziala na http://localhost:${PORT}`);
+  console.log(`Haslo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
+  if (!twilioClient) console.log('Twilio nie skonfigurowane - SMS dzialaja w trybie testowym (konsola)');
   if (!fs.existsSync(path.join(__dirname, 'service-account.json')))
-    console.log('⚠️   Google Calendar nie skonfigurowane – brak service-account.json');
+    console.log('Google Calendar nie skonfigurowane - brak service-account.json');
 });
