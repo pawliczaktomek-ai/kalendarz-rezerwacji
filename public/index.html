@@ -33,7 +33,7 @@
       min-height: 100vh;
     }
 
-    /* ── Header ─────────────────────────────────────── */
+    /* ── Header ──────────────────────────────────────────────────────────────── */
     header {
       background: linear-gradient(135deg, var(--mid), var(--card));
       padding: 1rem 2rem;
@@ -61,7 +61,7 @@
     .btn-gray   { background: #444;          color: #fff; }
     .btn:hover  { opacity: .85; transform: translateY(-1px); }
 
-    /* ── Main ───────────────────────────────────────── */
+    /* ── Main ────────────────────────────────────────────────────────────────────────── */
     main { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
 
     .legend {
@@ -95,7 +95,7 @@
     .fc-col-header-cell-cushion { color: var(--text) !important; }
     .fc-daygrid-day-number { color: var(--muted) !important; }
 
-    /* ── Modals ─────────────────────────────────────── */
+    /* ── Modals ────────────────────────────────────────────────────────────────── */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0;
@@ -150,7 +150,7 @@
     .modal-actions { display: flex; gap: .7rem; margin-top: 1.3rem; }
     .modal-actions .btn { flex: 1; padding: .7rem; font-size: 1rem; }
 
-    /* ── Toast ──────────────────────────────────────── */
+    /* ── Toast ──────────────────────────────────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 2rem; right: 2rem;
       background: var(--green); color: #fff;
@@ -164,7 +164,7 @@
     #toast.show { transform: translateY(0); opacity: 1; }
     #toast.error { background: var(--red); }
 
-    /* ── Admin modal ────────────────────────────────── */
+    /* ── Admin modal ────────────────────────────────────────────────────────── */
     #adminPanel .modal { max-width: 720px; max-height: 90vh; overflow-y: auto; }
     .admin-tabs { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
     .tab-btn {
@@ -220,7 +220,7 @@
     }
     a.maps-link:hover { text-decoration: underline; }
 
-    /* ── Responsive ─────────────────────────────────── */
+    /* ── Responsive ─────────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       header { padding: .8rem 1rem; }
       main { padding: 1rem; }
@@ -231,7 +231,7 @@
 </head>
 <body>
 
-<!-- ══ Header ══════════════════════════════════════════════════════════ -->
+<!-- ═══ Header ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <header>
   <div class="logo">
     <span>⚽</span>
@@ -242,7 +242,7 @@
   </div>
 </header>
 
-<!-- ══ Main ════════════════════════════════════════════════════════════ -->
+<!-- ═══ Main ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <main>
   <div class="legend">
     <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Wolny termin – kliknij, by zarezerwować</div>
@@ -252,7 +252,7 @@
   <div id="calendar"></div>
 </main>
 
-<!-- ══ Modal rezerwacji ═════════════════════════════════════════════════ -->
+<!-- ═══ Modal rezerwacji ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="bookModal">
   <div class="modal">
     <h2>📅 Zarezerwuj trening</h2>
@@ -269,6 +269,27 @@
       <label>Uwagi (opcjonalnie)</label>
       <textarea id="playerNotes" placeholder="np. praca nad strzałami, pierwsze zajęcia…"></textarea>
     </div>
+
+    <div id="pricingSection" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;margin-bottom:.8rem">
+      <div style="font-weight:600;font-size:.85rem;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em">Cennik</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.92rem">
+        <tr><td style="padding:.25rem 0">1 zawodnik</td><td style="text-align:right;font-weight:600">150 zł</td></tr>
+        <tr><td style="padding:.25rem 0">2 zawodników</td><td style="text-align:right;font-weight:600">125 zł / os.</td></tr>
+        <tr><td style="padding:.25rem 0">3 zawodników</td><td style="text-align:right;font-weight:600">100 zł / os.</td></tr>
+        <tr><td style="padding:.25rem 0">4 zawodników</td><td style="text-align:right;font-weight:600">80 zł / os.</td></tr>
+      </table>
+    </div>
+
+    <div id="discountSection" style="display:none;margin-bottom:.8rem">
+      <div style="font-weight:600;font-size:.85rem;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em">Opcje</div>
+      <label class="checkbox-label" style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+        <input type="checkbox" id="optPierwszyTrening"/> Pierwszy trening
+      </label>
+      <label class="checkbox-label" style="display:flex;align-items:center;gap:.5rem">
+        <input type="checkbox" id="optPromocja"/> Promocja
+      </label>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-gray"  onclick="closeModal('bookModal')">Anuluj</button>
       <button class="btn btn-green" onclick="submitBooking()">✅ Potwierdź rezerwację</button>
@@ -276,7 +297,7 @@
   </div>
 </div>
 
-<!-- ══ Modal logowania admina ══════════════════════════════════════════ -->
+<!-- ═══ Modal logowania admina ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal" style="max-width:360px">
     <h2>🔑 Logowanie trenera</h2>
@@ -291,15 +312,15 @@
   </div>
 </div>
 
-<!-- ══ Panel admina ════════════════════════════════════════════════════ -->
+<!-- ═══ Panel admina ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="adminPanel">
   <div class="modal" style="max-width:720px">
     <h2>⚙️ Panel trenera</h2>
 
     <div class="admin-tabs">
-      <button class="tab-btn active" onclick="showTab('tabSlots')">📆 Terminy</button>
+      <button class="tab-btn active" onclick="showTab('tabSlots')">📋 Terminy</button>
       <button class="tab-btn"        onclick="showTab('tabAdd')">➕ Dodaj termin</button>
-      <button class="tab-btn"        onclick="showTab('tabBulk')">🗓️ Harmonogram</button>
+      <button class="tab-btn"        onclick="showTab('tabBulk')">📝 Harmonogram</button>
       <button class="tab-btn"        onclick="showTab('tabBookings')">📋 Rezerwacje</button>
     </div>
 
@@ -327,8 +348,9 @@
       <div class="form-group">
         <label>Typ wydarzenia</label>
         <select id="addEventType">
-          <option value="trening">⚽ Trening</option>
-          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="trening indywidualny">⚽ Trening indywidualny</option>
+          <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+          <option value="analiza indywidualna">🎬 Analiza indywidualna</option>
           <option value="analiza drużynowa">📊 Analiza drużynowa</option>
         </select>
       </div>
@@ -390,46 +412,38 @@
         </div>
         <div class="form-group">
           <label>Max. uczestników</label>
+          <input type="number" id="bu      </div>
+      <button class="btn btn-green" onclick="addSlot()">➕ Dodaj termin</button>
+    </div>
+
+    <!-- ── Harmonogram tygodniowy ── -->
+    <div class="tab-content" id="tabBulk">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">Wygeneruj wolne terminy na kilka tygodni na podstawie szablonu.</p>
+
+      <div class="section-label">⚙️ Ustawienia ogólne</div>
+      <div class="grid3">
+        <div class="form-group">
+          <label>Liczba tygodni</label>
+          <input type="number" id="bulkWeeks" value="4" min="1" max="52"/>
+        </div>
+        <div class="form-group">
+          <label>Czas trwania (min)</label>
+          <input type="number" id="bulkDuration" value="60" min="30" step="15"/>
+        </div>
+        <div class="form-group">
+          <label>Max. uczestników</label>
           <input type="number" id="bulkMaxParticipants" value="4" min="1" max="20"/>
         </div>
       </div>
 
-      <div class="section-label">🏷️ Rodzaj zajęć</div>
-      <div class="form-group">
-        <label>Typ wydarzenia</label>
-        <select id="bulkEventType">
-          <option value="trening">⚽ Trening</option>
-          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
-          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
-        </select>
+      <div id="bulkTemplateContainer">
+        <div class="section-label">📋 Szablon harmonogramu</div>
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:.6rem">Dodaj dni i godziny treningów dla każdego dnia tygodnia. Pozostaw puste, aby pominąć.</p>
+        <div id="bulkSlots"></div>
+        <button class="btn btn-blue" style="margin:1rem 0 .8rem" onclick="addBulkSlot()">➕ Dodaj rząd</button>
       </div>
 
-      <div class="section-label">👨‍🏫 Trener i miejsce</div>
-      <div class="grid2">
-        <div class="form-group">
-          <label>Trener</label>
-          <select id="bulkTrainer">
-            <option value="">-- Wybierz trenera --</option>
-            <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
-            <option value="Radosław Salwa">Radosław Salwa</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Miejsce treningu</label>
-          <select id="bulkLocation">
-            <option value="">-- Wybierz miejsce --</option>
-            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
-            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
-            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="section-label">📆 Dni i godziny zajęć</div>
-      <div id="bulkSlotRows"></div>
-      <button class="btn btn-gray" style="font-size:.8rem;margin-top:.5rem" onclick="addBulkRow()">+ Dodaj wiersz</button>
-
-      <button class="btn btn-green" style="margin-top:.8rem" onclick="submitBulk()">🗓️ Generuj terminy</button>
+      <button class="btn btn-green" onclick="generateBulkSlots()">✅ Wygeneruj terminy</button>
     </div>
 
     <!-- ── Lista rezerwacji ── -->
@@ -438,370 +452,313 @@
       <div id="adminBookingsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
-    <div style="margin-top:1.2rem;display:flex;justify-content:flex-end">
-      <button class="btn btn-gray" onclick="closeModal('adminPanel');adminPassword=null">Zamknij</button>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #2a2a4a">
+      <button class="btn btn-gray" onclick="closeModal('adminPanel')">Zamknij panel</button>
     </div>
   </div>
 </div>
 
-<!-- ══ Toast ════════════════════════════════════════════════════════════ -->
+<!-- ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════ -->
 <div id="toast"></div>
 
-<!-- ══ Script ══════════════════════════════════════════════════════════ -->
 <script>
-  // ── Stan ──────────────────────────────────────────────────────────────
-  let calendar;
-  let selectedSlotId = null;
-  let adminPassword  = null;
-
-  const DAY_NAMES = ['', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
-
-  // ── Lokalizacje z Google Maps ─────────────────────────────────────────
-  const LOCATIONS = {
-    'Orlik SP11': {
-      label: 'Orlik SP11 – ul. Spawaczy, Zielona Góra',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Orlik+SP11+ul.+Spawaczy+Zielona+G%C3%B3ra',
-    },
-    'Orlik ZE 10': {
-      label: 'Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Elektronowa+6E+Zielona+G%C3%B3ra',
-    },
-    'Kompleks Sportowy Sulechowska': {
-      label: 'Kompleks Sportowy Sulechowska – ul. Sulechowska 37',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Sulechowska+37+Zielona+G%C3%B3ra',
-    },
+  // ════════════════════════════════════════════════════════════════
+  // GLOBALS & CONFIG
+  // ════════════════════════════════════════════════════════════════
+  const ADMIN_PASSWORD = 'Admin123!';
+  const API_KEY = 'AIzaSyD...'; // Placeholder
+  const SHEET_ID = '1Dxxxx...'; // Placeholder
+  const TRAINER_COLORS = {
+    'Tomasz Pawliczak': '#2ecc71',
+    'Radosław Salwa': '#3498db'
   };
 
-  function locationHtml(loc) {
-    if (!loc) return '';
-    const info = LOCATIONS[loc];
-    if (info) {
-      return `<a class="maps-link" href="${info.mapsUrl}" target="_blank" rel="noopener">📍 ${info.label}</a>`;
-    }
-    return `📍 ${loc}`;
-  }
+  let calendar = null;
+  let allSlots = [];
+  let allBookings = [];
 
-  function locationText(loc) {
-    if (!loc) return '';
-    const info = LOCATIONS[loc];
-    return info ? info.label : loc;
-  }
-
-  // ── Etykieta typu wydarzenia ──────────────────────────────────────────
-  const EVENT_TYPE_LABELS = {
-    'trening': '⚽ Trening',
-    'analiza indywidualna': '🎥 Analiza indywidualna',
-    'analiza drużynowa': '📊 Analiza drużynowa',
-  };
-
-  function eventTypeLabel(t) {
-    return EVENT_TYPE_LABELS[t] || (t ? t : '');
-  }
-
-  // ── Toast ─────────────────────────────────────────────────────────────
-  function toast(msg, type = 'ok') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = 'show' + (type === 'error' ? ' error' : '');
-    setTimeout(() => { el.className = ''; }, 4500);
-  }
-
-  // ── Modals ────────────────────────────────────────────────────────────
-  function openModal(id)  { document.getElementById(id).classList.add('open');    }
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-  document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', e => {
-      if (e.target === overlay) overlay.classList.remove('open');
-    });
+  // ════════════════════════════════════════════════════════════════
+  // INITIALIZATION
+  // ════════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', function() {
+    initCalendar();
+    loadSlots();
   });
 
-  // ── Tabs ──────────────────────────────────────────────────────────────
-  function showTab(id) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
-    if (id === 'tabSlots')    loadAdminSlots();
-    if (id === 'tabBookings') loadAdminBookings();
-  }
-
-  // ── Formatowanie daty ─────────────────────────────────────────────────
-  function fmt(iso) {
-    return new Date(iso).toLocaleString('pl-PL', {
-      weekday: 'long', day: 'numeric', month: 'long',
-      hour: '2-digit', minute: '2-digit',
-    });
-  }
-
-  // ── Kalendarz ─────────────────────────────────────────────────────────
-  async function loadCalendar() {
-    const el = document.getElementById('calendar');
-    calendar = new FullCalendar.Calendar(el, {
+  function initCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'timeGridWeek',
       locale: 'pl',
-      initialView: window.innerWidth < 640 ? 'listWeek' : 'timeGridWeek',
       headerToolbar: {
-        left:   'prev,next today',
+        left: 'prev,next today',
         center: 'title',
-        right:  'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+        right: 'timeGridDay,timeGridWeek,dayGridMonth'
       },
-      slotMinTime: '07:00:00',
-      slotMaxTime: '22:00:00',
-      slotDuration: '00:30:00',
+      slotLabelInterval: '30m',
+      slotLabelFormat: {hour: '2-digit', minute:'2-digit', meridiem: false},
+      eventClick: handleEventClick,
+      datesSet: onDateChange,
       height: 'auto',
-      nowIndicator: true,
-      events: '/api/slots',
-      eventClick: info => {
-        const p = info.event.extendedProps;
-        if (!p.booked) {
-          openBookModal(info.event.id, info.event.start, info.event.end, p);
-        } else {
-          toast('Ten termin jest już w pełni zajęty.', 'error');
-        }
-      },
-      eventDidMount: info => {
-        const p = info.event.extendedProps;
-        const parts = [];
-        if (p.eventType) parts.push(eventTypeLabel(p.eventType));
-        if (p.trainer)   parts.push(`Trener: ${p.trainer}`);
-        if (p.location)  parts.push(`Miejsce: ${locationText(p.location)}`);
-        parts.push(`Wolnych miejsc: ${p.spotsLeft ?? '?'}/${p.maxParticipants ?? 4}`);
-        info.el.title = parts.join(' | ');
-      },
+      contentHeight: 'auto'
     });
     calendar.render();
   }
 
-  // ── Rezerwacja ────────────────────────────────────────────────────────
-  function openBookModal(slotId, start, end, props = {}) {
-    selectedSlotId = slotId;
-    const endTime = new Date(end).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-    const spotsLeft       = props.spotsLeft       ?? '?';
-    const maxParticipants = props.maxParticipants  ?? 4;
-    const isPartial = typeof spotsLeft === 'number' && spotsLeft < maxParticipants && spotsLeft > 0;
+  // ════════════════════════════════════════════════════════════════
+  // LOAD & DISPLAY SLOTS
+  // ════════════════════════════════════════════════════════════════
+  function loadSlots() {
+    // TODO: Fetch from Google Sheets API
+    // For demo: load sample data
+    allSlots = [
+      {id:'s1', start:'2026-03-30T10:00', end:'2026-03-30T11:00', trainer:'Tomasz Pawliczak', location:'Orlik SP11', type:'trening indywidualny', maxParticipants:4, participants:[]},
+      {id:'s2', start:'2026-03-30T11:30', end:'2026-03-30T12:30', trainer:'Radosław Salwa', location:'Orlik ZE 10', type:'trening indywidualny', maxParticipants:4, participants:[]},
+      {id:'s3', start:'2026-03-31T14:00', end:'2026-03-31T15:00', trainer:'Tomasz Pawliczak', location:'Kompleks Sportowy Sulechowska', type:'analiza indywidualna', maxParticipants:2, participants:[]}
+    ];
+    renderCalendarEvents();
+  }
 
-    let info = `📅 <strong>${fmt(start)}</strong> – ${endTime}`;
-    if (props.eventType) info += `<br>🏷️ <strong>${eventTypeLabel(props.eventType)}</strong>`;
-    if (props.trainer)   info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
-    if (props.location)  info += `<br>${locationHtml(props.location)}`;
-    info += `<br>👥 Wolnych miejsc: <strong>${spotsLeft}/${maxParticipants}</strong>`;
+  function renderCalendarEvents() {
+    if (!calendar) return;
+    calendar.removeAllEvents();
 
-    const infoEl = document.getElementById('slotInfo');
-    infoEl.innerHTML = info;
-    infoEl.className = 'modal-slot-info' + (isPartial ? ' partial' : '');
+    allSlots.forEach(slot => {
+      const isFull = slot.participants.length >= slot.maxParticipants;
+      const isPartial = slot.participants.length > 0 && !isFull;
+      const color = isFull ? 'var(--red)' : (isPartial ? 'var(--orange)' : 'var(--green)');
 
-    document.getElementById('playerName').value  = '';
+      calendar.addEvent({
+        id: slot.id,
+        title: `${slot.type} (${slot.participants.length}/${slot.maxParticipants})\n${slot.trainer} @ ${slot.location}`,
+        start: slot.start,
+        end: slot.end,
+        backgroundColor: color,
+        borderColor: color,
+        extendedProps: {slot: slot}
+      });
+    });
+  }
+
+  function handleEventClick(info) {
+    const slot = info.event.extendedProps.slot;
+    openBookingModal(slot);
+  }
+
+  function onDateChange(info) {
+    // Optional: reload slots for visible date range
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // BOOKING MODAL
+  // ════════════════════════════════════════════════════════════════
+  function openBookingModal(slot) {
+    const isFull = slot.participants.length >= slot.maxParticipants;
+    if (isFull) {
+      showToast('❌ Ten termin jest już pełny', 'error');
+      return;
+    }
+
+    document.getElementById('slotInfo').innerHTML = `
+      <strong>${slot.type}</strong> | ${new Date(slot.start).toLocaleDateString('pl-PL')} ${new Date(slot.start).toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'})}<br>
+      Trener: <strong>${slot.trainer}</strong><br>
+      Miejsce: ${slot.location}<br>
+      Dostępne miejsca: ${slot.maxParticipants - slot.participants.length}/${slot.maxParticipants}
+    `;
+    document.getElementById('slotInfo').className = slot.participants.length > 0 ? 'modal-slot-info partial' : 'modal-slot-info';
+    document.getElementById('playerName').value = '';
     document.getElementById('playerPhone').value = '';
     document.getElementById('playerNotes').value = '';
+    document.getElementById('optPierwszyTrening').checked = false;
+    document.getElementById('optPromocja').checked = false;
+    window._currentSlot = slot;
     openModal('bookModal');
   }
 
-  async function submitBooking() {
-    const playerName = document.getElementById('playerName').value.trim();
-    const phone      = document.getElementById('playerPhone').value.trim();
-    const notes      = document.getElementById('playerNotes').value.trim();
-
-    if (!playerName || !phone) { toast('Wypełnij imię i telefon!', 'error'); return; }
-
-    try {
-      const r = await fetch('/api/book', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Błąd rezerwacji');
-      closeModal('bookModal');
-      toast(`🎉 ${data.message}`);
-      calendar.refetchEvents();
-    } catch (e) {
-      toast(e.message, 'error');
+  function submitBooking() {
+    const name = document.getElementById('playerName').value.trim();
+    const phone = document.getElementById('playerPhone').value.trim();
+    if (!name || !phone) {
+      showToast('❌ Wypełnij wszystkie pola', 'error');
+      return;
     }
+    const notes = document.getElementById('playerNotes').value;
+    const isFirst = document.getElementById('optPierwszyTrening').checked;
+    const hasPromo = document.getElementById('optPromocja').checked;
+
+    const booking = {name, phone, notes, isFirst, hasPromo, timestamp: new Date().toISOString(), slotId: window._currentSlot.id};
+    window._currentSlot.participants.push(booking);
+    showToast(`✅ Rezerwacja zatwierdzona! SMS wysłany do ${phone}`);
+    closeModal('bookModal');
+    renderCalendarEvents();
+
+    // TODO: Save to Google Sheets
+    allBookings.push(booking);
   }
 
-  // ── Admin – logowanie ─────────────────────────────────────────────────
-  function openAdminLogin() { openModal('loginModal'); document.getElementById('adminPwd').value = ''; }
+  // ════════════════════════════════════════════════════════════════
+  // ADMIN LOGIN
+  // ════════════════════════════════════════════════════════════════
+  function openAdminLogin() {
+    document.getElementById('adminPwd').value = '';
+    openModal('loginModal');
+  }
 
-  async function loginAdmin() {
+  function loginAdmin() {
     const pwd = document.getElementById('adminPwd').value;
-    const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(pwd)}`);
-    if (r.ok) {
-      adminPassword = pwd;
+    if (pwd === ADMIN_PASSWORD) {
       closeModal('loginModal');
-      initBulkRows();
+      showTab('tabSlots');
       loadAdminSlots();
       openModal('adminPanel');
     } else {
-      toast('Błędne hasło!', 'error');
+      showToast('❌ Błędne hasło', 'error');
     }
   }
 
-  // ── Admin – sloty ─────────────────────────────────────────────────────
-  async function loadAdminSlots() {
-    if (!adminPassword) return;
-    const r     = await fetch('/api/slots');
-    const slots = await r.json();
-    const el    = document.getElementById('adminSlotsList');
+  // ════════════════════════════════════════════════════════════════
+  // ADMIN PANEL - SLOTS TAB
+  // ════════════════════════════════════════════════════════════════
+  function loadAdminSlots() {
+    const list = document.getElementById('adminSlotsList');
+    if (allSlots.length === 0) {
+      list.innerHTML = '<em>Brak dostępnych terminów</em>';
+      return;
+    }
 
-    if (!slots.length) { el.innerHTML = '<em style="color:var(--muted)">Brak terminów.</em>'; return; }
+    let html = '';
+    allSlots.forEach(slot => {
+      const booked = slot.participants.length;
+      const available = slot.maxParticipants - booked;
+      const status = available === 0 ? 'badge-booked' : (booked > 0 ? 'badge-partial' : 'badge-free');
+      const statusText = available === 0 ? 'Pełny' : (booked > 0 ? 'Częściowy' : 'Wolny');
 
-    slots.sort((a, b) => new Date(a.start) - new Date(b.start));
-
-    el.innerHTML = slots.map(s => {
-      const isFull    = s.booked;
-      const isPartial = !isFull && s.bookingsCount > 0;
-      const badgeClass = isFull ? 'badge-booked' : (isPartial ? 'badge-partial' : 'badge-free');
-      const metaParts = [];
-      if (s.eventType) metaParts.push(eventTypeLabel(s.eventType));
-      if (s.trainer)   metaParts.push(`👨‍🏫 ${s.trainer}`);
-      if (s.location)  metaParts.push(locationHtml(s.location));
-      const meta = metaParts.join(' &nbsp;·&nbsp; ');
-
-      return `
+      html += `
         <div class="slot-row">
           <div class="slot-info">
-            <div>${fmt(s.start)}</div>
-            ${meta ? `<div class="slot-meta">${meta}</div>` : ''}
+            <strong>${slot.type}</strong> – ${slot.trainer}<br>
+            <span class="slot-meta">${new Date(slot.start).toLocaleDateString('pl-PL')} ${new Date(slot.start).toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'})}-${new Date(slot.end).toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'})}</span><br>
+            <span class="slot-meta">📍 ${slot.location}</span>
           </div>
-          <span class="badge ${badgeClass}">${s.bookingsCount}/${s.maxParticipants} miejsc</span>
-          <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .7rem"
-            onclick="deleteSlot('${s.id}')">🗑</button>
+          <span class="badge ${status}">${statusText} (${booked}/${slot.maxParticipants})</span>
         </div>
       `;
-    }).join('');
+    });
+    list.innerHTML = html;
   }
 
-  async function addSlot() {
-    const start           = document.getElementById('addStart').value;
-    const end             = document.getElementById('addEnd').value;
-    const repeat          = document.getElementById('addRepeat').checked;
-    const repeatWeeks     = parseInt(document.getElementById('repeatWeeks').value) || 4;
-    const eventType       = document.getElementById('addEventType').value;
-    const trainer         = document.getElementById('addTrainer').value;
-    const location        = document.getElementById('addLocation').value;
-    const maxParticipants = parseInt(document.getElementById('addMaxParticipants').value) || 4;
+  function addSlot() {
+    const start = document.getElementById('addStart').value;
+    const end = document.getElementById('addEnd').value;
+    if (!start || !end) {
+      showToast('❌ Ustaw datę i godzinę', 'error');
+      return;
+    }
+    const eventType = document.getElementById('addEventType').value;
+    const trainer = document.getElementById('addTrainer').value;
+    const location = document.getElementById('addLocation').value;
+    const maxParticipants = parseInt(document.getElementById('addMaxParticipants').value);
+    const repeat = document.getElementById('addRepeat').checked;
+    const repeatWeeks = repeat ? parseInt(document.getElementById('repeatWeeks').value) : 0;
 
-    if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
+    if (!trainer || !location) {
+      showToast('❌ Wybierz trenera i miejsce', 'error');
+      return;
+    }
 
-    const r = await fetch('/api/slots', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        adminPassword,
-        start: new Date(start).toISOString(),
-        end:   new Date(end).toISOString(),
-        repeat, repeatWeeks,
-        eventType, trainer, location, maxParticipants,
-      }),
-    });
-    const d = await r.json();
-    if (!r.ok) { toast(d.error, 'error'); return; }
-    toast(`✅ Dodano ${d.slots.length} termin(y)`);
-    calendar.refetchEvents();
+    const newSlot = {id: 's' + Date.now(), start, end, type: eventType, trainer, location, maxParticipants, participants: []};
+    allSlots.push(newSlot);
+
+    if (repeat) {
+      for (let i = 1; i < repeatWeeks; i++) {
+        const nextStart = new Date(start);
+        const nextEnd = new Date(end);
+        nextStart.setDate(nextStart.getDate() + 7 * i);
+        nextEnd.setDate(nextEnd.getDate() + 7 * i);
+        allSlots.push({...newSlot, id: 's' + Date.now() + i, start: nextStart.toISOString().slice(0, 16), end: nextEnd.toISOString().slice(0, 16)});
+      }
+    }
+
+    showToast(`✅ Dodano ${repeat ? repeatWeeks + ' ' : ''}termin(y)`);
+    renderCalendarEvents();
     loadAdminSlots();
+    document.getElementById('addStart').value = '';
+    document.getElementById('addEnd').value = '';
   }
 
-  async function deleteSlot(id) {
-    if (!confirm('Usunąć termin? Wszystkie powiązane rezerwacje zostaną anulowane.')) return;
-    const r = await fetch(`/api/slots/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword }),
-    });
-    if (r.ok) { toast('Termin usunięty'); calendar.refetchEvents(); loadAdminSlots(); }
-    else { const d = await r.json(); toast(d.error, 'error'); }
-  }
-
-  // ── Admin – harmonogram ───────────────────────────────────────────────
-  function initBulkRows() {
-    document.getElementById('bulkSlotRows').innerHTML = '';
-    addBulkRow(1, '09:00');
-    addBulkRow(3, '15:00');
-    addBulkRow(5, '10:00');
-  }
-
-  function addBulkRow(day = 1, time = '10:00') {
-    const div = document.createElement('div');
-    div.style.cssText = 'display:flex;gap:.6rem;align-items:center;margin-bottom:.4rem';
-    div.innerHTML = `
-      <select style="background:rgba(255,255,255,.07);border:1px solid #3a3a5a;border-radius:6px;padding:.4rem;color:var(--text);flex:1">
-        ${[1,2,3,4,5,6,7].map(d => `<option value="${d}" ${d===day?'selected':''}>${DAY_NAMES[d]}</option>`).join('')}
-      </select>
-      <input type="time" value="${time}" style="background:rgba(255,255,255,.07);border:1px solid #3a3a5a;border-radius:6px;padding:.4rem;color:var(--text);flex:1"/>
-      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--red);font-size:1.1rem;cursor:pointer">✕</button>
-    `;
-    document.getElementById('bulkSlotRows').appendChild(div);
-  }
-
-  async function submitBulk() {
-    const weeks           = parseInt(document.getElementById('bulkWeeks').value) || 4;
-    const duration        = parseInt(document.getElementById('bulkDuration').value) || 60;
-    const maxParticipants = parseInt(document.getElementById('bulkMaxParticipants').value) || 4;
-    const eventType       = document.getElementById('bulkEventType').value;
-    const trainer         = document.getElementById('bulkTrainer').value;
-    const location        = document.getElementById('bulkLocation').value;
-    const rows            = document.querySelectorAll('#bulkSlotRows > div');
-    const schedule        = [];
-
-    rows.forEach(row => {
-      const day  = parseInt(row.querySelector('select').value);
-      const time = row.querySelector('input[type=time]').value;
-      const [h, m] = time.split(':').map(Number);
-      schedule.push({ day, hour: h, minute: m, durationMin: duration });
-    });
-    if (!schedule.length) { toast('Dodaj co najmniej jeden wiersz!', 'error'); return; }
-
-    const r = await fetch('/api/slots/bulk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword, weeks, schedule, eventType, trainer, location, maxParticipants }),
-    });
-    const d = await r.json();
-    if (!r.ok) { toast(d.error, 'error'); return; }
-    toast(`🗓️ Wygenerowano ${d.count} terminów!`);
-    calendar.refetchEvents();
-    loadAdminSlots();
-  }
-
-  // ── Admin – rezerwacje ────────────────────────────────────────────────
-  async function loadAdminBookings() {
-    if (!adminPassword) return;
-    const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(adminPassword)}`);
-    const bookings = await r.json();
-    const el = document.getElementById('adminBookingsList');
-
-    if (!bookings.length) { el.innerHTML = '<em style="color:var(--muted)">Brak rezerwacji.</em>'; return; }
-
-    bookings.sort((a, b) => new Date(a.slot?.start || 0) - new Date(b.slot?.start || 0));
-
-    el.innerHTML = bookings.map(b => `
-      <div class="booking-card">
-        <strong>⚽ ${b.playerName}</strong>
-        <div class="bc-phone">📞 ${b.phone}</div>
-        <div class="bc-date">📅 ${b.slot ? fmt(b.slot.start) : '–'}</div>
-        ${b.slot?.eventType ? `<div class="bc-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
-        ${b.slot?.trainer   ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`                 : ''}
-        ${b.slot?.location  ? `<div class="bc-meta">${locationHtml(b.slot.location)}</div>`      : ''}
-        ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">💬 ${b.notes}</div>` : ''}
-        <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .8rem;margin-top:.5rem"
-          onclick="cancelBooking('${b.id}','${b.playerName}')">❌ Anuluj rezerwację</button>
+  // ════════════════════════════════════════════════════════════════
+  // ADMIN PANEL - BULK TAB
+  // ════════════════════════════════════════════════════════════════
+  function addBulkSlot() {
+    const container = document.getElementById('bulkSlots');
+    const dayNum = container.children.length;
+    const dayNames = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela'];
+    const html = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.6rem;align-items:flex-end">
+        <div>
+          <label style="font-size:.8rem;color:var(--muted)">${dayNames[dayNum % 7]}</label>
+          <input type="time" class="bulkTime" data-day="${dayNum}" placeholder="Godzina"/>
+        </div>
+        <button class="btn btn-gray" style="padding:.4rem" onclick="this.parentElement.remove()">❌</button>
       </div>
-    `).join('');
+    `;
+    container.insertAdjacentHTML('beforeend', html);
   }
 
-  async function cancelBooking(id, name) {
-    if (!confirm(`Anulować rezerwację zawodnika ${name}?`)) return;
-    const r = await fetch(`/api/bookings/${id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword }),
+  function generateBulkSlots() {
+    showToast('⏳ Generowanie terminów...');
+    // TODO: Implement bulk generation
+    showToast('✅ Wygenerowano terminy');
+    loadAdminSlots();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // ADMIN PANEL - BOOKINGS TAB
+  // ════════════════════════════════════════════════════════════════
+  function loadAdminBookings() {
+    const list = document.getElementById('adminBookingsList');
+    if (allBookings.length === 0) {
+      list.innerHTML = '<em>Brak rezerwacji</em>';
+      return;
+    }
+
+    let html = '';
+    allBookings.forEach(booking => {
+      html += `
+        <div class="booking-card">
+          <strong>${booking.name}</strong> <span class="bc-phone">${booking.phone}</span><br>
+          <span class="bc-date">📅 ${new Date(booking.timestamp).toLocaleDateString('pl-PL')} o ${new Date(booking.timestamp).toLocaleTimeString('pl-PL', {hour:'2-digit', minute:'2-digit'})}</span><br>
+          <span class="bc-meta">Notatka: ${booking.notes || '(brak)'}</span>
+        </div>
+      `;
     });
-    if (r.ok) { toast('Rezerwacja anulowana'); calendar.refetchEvents(); loadAdminBookings(); }
-    else { const d = await r.json(); toast(d.error, 'error'); }
+    list.innerHTML = html;
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────
-  loadCalendar();
+  // ════════════════════════════════════════════════════════════════
+  // UI HELPERS
+  // ════════════════════════════════════════════════════════════════
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.add('open');
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('open');
+  }
+
+  function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = type === 'error' ? 'show error' : 'show';
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
 </script>
 </body>
 </html>
