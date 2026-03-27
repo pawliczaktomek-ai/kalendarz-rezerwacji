@@ -199,6 +199,8 @@
     .booking-card .bc-date  { color: var(--muted); font-size: .8rem; margin-top: .2rem; }
     .booking-card .bc-phone { color: #5dade2; }
     .booking-card .bc-meta  { color: var(--muted); font-size: .8rem; margin-top: .1rem; }
+    .booking-card .bc-meta a { color: #5dade2; text-decoration: none; }
+    .booking-card .bc-meta a:hover { text-decoration: underline; }
 
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
     .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .7rem; }
@@ -211,6 +213,12 @@
       margin: 1rem 0 .5rem; padding-bottom: .3rem;
       border-bottom: 1px solid #2a2a4a;
     }
+
+    /* Maps link style */
+    a.maps-link {
+      color: #5dade2; text-decoration: none; display: inline-flex; align-items: center; gap: .25rem;
+    }
+    a.maps-link:hover { text-decoration: underline; }
 
     /* ── Responsive ─────────────────────────────────── */
     @media (max-width: 640px) {
@@ -261,6 +269,27 @@
       <label>Uwagi (opcjonalnie)</label>
       <textarea id="playerNotes" placeholder="np. praca nad strzałami, pierwsze zajęcia…"></textarea>
     </div>
+
+    <div id="pricingSection" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;margin-bottom:.8rem">
+      <div style="font-weight:600;font-size:.85rem;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em">Cennik</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.92rem">
+        <tr><td style="padding:.25rem 0">1 zawodnik</td><td style="text-align:right;font-weight:600">150 zł</td></tr>
+        <tr><td style="padding:.25rem 0">2 zawodników</td><td style="text-align:right;font-weight:600">125 zł / os.</td></tr>
+        <tr><td style="padding:.25rem 0">3 zawodników</td><td style="text-align:right;font-weight:600">100 zł / os.</td></tr>
+        <tr><td style="padding:.25rem 0">4 zawodników</td><td style="text-align:right;font-weight:600">80 zł / os.</td></tr>
+      </table>
+    </div>
+
+    <div id="discountSection" style="display:none;margin-bottom:.8rem">
+      <div style="font-weight:600;font-size:.85rem;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em">Opcje</div>
+      <label class="checkbox-label" style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">
+        <input type="checkbox" id="optPierwszyTrening"/> Pierwszy trening
+      </label>
+      <label class="checkbox-label" style="display:flex;align-items:center;gap:.5rem">
+        <input type="checkbox" id="optPromocja"/> Promocja
+      </label>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-gray"  onclick="closeModal('bookModal')">Anuluj</button>
       <button class="btn btn-green" onclick="submitBooking()">✅ Potwierdź rezerwację</button>
@@ -315,15 +344,35 @@
         </div>
       </div>
 
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
+      <div class="form-group">
+        <label>Typ wydarzenia</label>
+        <select id="addEventType">
+          <option value="trening indywidualny">⚽ Trening indywidualny</option>
+          <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
+        </select>
+      </div>
+
       <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
-          <input type="text" id="addTrainer" placeholder="np. Tomasz Kowalski"/>
+          <select id="addTrainer">
+            <option value="">-- Wybierz trenera --</option>
+            <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
-          <input type="text" id="addLocation" placeholder="np. Boisko główne"/>
+          <select id="addLocation">
+            <option value="">-- Wybierz miejsce --</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
+          </select>
         </div>
       </div>
 
@@ -367,15 +416,35 @@
         </div>
       </div>
 
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
+      <div class="form-group">
+        <label>Typ wydarzenia</label>
+        <select id="bulkEventType">
+          <option value="trening indywidualny">⚽ Trening indywidualny</option>
+          <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
+        </select>
+      </div>
+
       <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
-          <input type="text" id="bulkTrainer" placeholder="np. Tomasz Kowalski"/>
+          <select id="bulkTrainer">
+            <option value="">-- Wybierz trenera --</option>
+            <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
-          <input type="text" id="bulkLocation" placeholder="np. Boisko główne"/>
+          <select id="bulkLocation">
+            <option value="">-- Wybierz miejsce --</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
+          </select>
         </div>
       </div>
 
@@ -409,6 +478,50 @@
   let adminPassword  = null;
 
   const DAY_NAMES = ['', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
+
+  // ── Lokalizacje z Google Maps ─────────────────────────────────────────
+  const LOCATIONS = {
+    'Orlik SP11': {
+      label: 'Orlik SP11 – ul. Spawaczy, Zielona Góra',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Orlik+SP11+ul.+Spawaczy+Zielona+G%C3%B3ra',
+    },
+    'Orlik ZE 10': {
+      label: 'Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Elektronowa+6E+Zielona+G%C3%B3ra',
+    },
+    'Kompleks Sportowy Sulechowska': {
+      label: 'Kompleks Sportowy Sulechowska – ul. Sulechowska 37',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Sulechowska+37+Zielona+G%C3%B3ra',
+    },
+  };
+
+  function locationHtml(loc) {
+    if (!loc) return '';
+    const info = LOCATIONS[loc];
+    if (info) {
+      return `<a class="maps-link" href="${info.mapsUrl}" target="_blank" rel="noopener">📍 ${info.label}</a>`;
+    }
+    return `📍 ${loc}`;
+  }
+
+  function locationText(loc) {
+    if (!loc) return '';
+    const info = LOCATIONS[loc];
+    return info ? info.label : loc;
+  }
+
+  // ── Etykieta typu wydarzenia ──────────────────────────────────────────
+  const EVENT_TYPE_LABELS = {
+    'trening indywidualny': '⚽ Trening indywidualny',
+    'trening pozycyjny': '⚽ Trening pozycyjny',
+    'trening': '⚽ Trening indywidualny',   // backward compat
+    'analiza indywidualna': '🎥 Analiza indywidualna',
+    'analiza drużynowa': '📊 Analiza drużynowa',
+  };
+
+  function eventTypeLabel(t) {
+    return EVENT_TYPE_LABELS[t] || (t ? t : '');
+  }
 
   // ── Toast ─────────────────────────────────────────────────────────────
   function toast(msg, type = 'ok') {
@@ -474,8 +587,9 @@
       eventDidMount: info => {
         const p = info.event.extendedProps;
         const parts = [];
-        if (p.trainer)  parts.push(`Trener: ${p.trainer}`);
-        if (p.location) parts.push(`Miejsce: ${p.location}`);
+        if (p.eventType) parts.push(eventTypeLabel(p.eventType));
+        if (p.trainer)   parts.push(`Trener: ${p.trainer}`);
+        if (p.location)  parts.push(`Miejsce: ${locationText(p.location)}`);
         parts.push(`Wolnych miejsc: ${p.spotsLeft ?? '?'}/${p.maxParticipants ?? 4}`);
         info.el.title = parts.join(' | ');
       },
@@ -492,8 +606,9 @@
     const isPartial = typeof spotsLeft === 'number' && spotsLeft < maxParticipants && spotsLeft > 0;
 
     let info = `📅 <strong>${fmt(start)}</strong> – ${endTime}`;
-    if (props.trainer)  info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
-    if (props.location) info += `<br>📍 Miejsce: <strong>${props.location}</strong>`;
+    if (props.eventType) info += `<br>🏷️ <strong>${eventTypeLabel(props.eventType)}</strong>`;
+    if (props.trainer)   info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
+    if (props.location)  info += `<br>${locationHtml(props.location)}`;
     info += `<br>👥 Wolnych miejsc: <strong>${spotsLeft}/${maxParticipants}</strong>`;
 
     const infoEl = document.getElementById('slotInfo');
@@ -503,21 +618,33 @@
     document.getElementById('playerName').value  = '';
     document.getElementById('playerPhone').value = '';
     document.getElementById('playerNotes').value = '';
+    document.getElementById('optPierwszyTrening').checked = false;
+    document.getElementById('optPromocja').checked = false;
+
+    const isTraining = props.eventType && props.eventType.startsWith('trening');
+    document.getElementById('pricingSection').style.display  = isTraining ? '' : 'none';
+    document.getElementById('discountSection').style.display = isTraining ? '' : 'none';
+
     openModal('bookModal');
   }
 
   async function submitBooking() {
-    const playerName = document.getElementById('playerName').value.trim();
-    const phone      = document.getElementById('playerPhone').value.trim();
-    const notes      = document.getElementById('playerNotes').value.trim();
+    const playerName      = document.getElementById('playerName').value.trim();
+    const phone           = document.getElementById('playerPhone').value.trim();
+    const notes           = document.getElementById('playerNotes').value.trim();
+    const pierwsyzTrening = document.getElementById('optPierwszyTrening').checked;
+    const promocja        = document.getElementById('optPromocja').checked;
 
     if (!playerName || !phone) { toast('Wypełnij imię i telefon!', 'error'); return; }
+
+    const extraOpts = [pierwsyzTrening && 'Pierwszy trening', promocja && 'Promocja'].filter(Boolean);
+    const fullNotes = [notes, ...extraOpts].filter(Boolean).join(' | ');
 
     try {
       const r = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes }),
+        body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes: fullNotes }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Błąd rezerwacji');
@@ -561,10 +688,11 @@
       const isFull    = s.booked;
       const isPartial = !isFull && s.bookingsCount > 0;
       const badgeClass = isFull ? 'badge-booked' : (isPartial ? 'badge-partial' : 'badge-free');
-      const meta = [
-        s.trainer  ? `👨‍🏫 ${s.trainer}`  : '',
-        s.location ? `📍 ${s.location}` : '',
-      ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+      const metaParts = [];
+      if (s.eventType) metaParts.push(eventTypeLabel(s.eventType));
+      if (s.trainer)   metaParts.push(`👨‍🏫 ${s.trainer}`);
+      if (s.location)  metaParts.push(locationHtml(s.location));
+      const meta = metaParts.join(' &nbsp;·&nbsp; ');
 
       return `
         <div class="slot-row">
@@ -582,11 +710,12 @@
 
   async function addSlot() {
     const start           = document.getElementById('addStart').value;
-    const end             = document.getElementById('addEnd').value;
+    const end  p          = document.getElementById('addEnd').value;
     const repeat          = document.getElementById('addRepeat').checked;
     const repeatWeeks     = parseInt(document.getElementById('repeatWeeks').value) || 4;
-    const trainer         = document.getElementById('addTrainer').value.trim();
-    const location        = document.getElementById('addLocation').value.trim();
+    const eventType       = document.getElementById('addEventType').value;
+    const trainer         = document.getElementById('addTrainer').value;
+    const location        = document.getElementById('addLocation').value;
     const maxParticipants = parseInt(document.getElementById('addMaxParticipants').value) || 4;
 
     if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
@@ -599,7 +728,7 @@
         start: new Date(start).toISOString(),
         end:   new Date(end).toISOString(),
         repeat, repeatWeeks,
-        trainer, location, maxParticipants,
+        eventType, trainer, location, maxParticipants,
       }),
     });
     const d = await r.json();
@@ -645,8 +774,9 @@
     const weeks           = parseInt(document.getElementById('bulkWeeks').value) || 4;
     const duration        = parseInt(document.getElementById('bulkDuration').value) || 60;
     const maxParticipants = parseInt(document.getElementById('bulkMaxParticipants').value) || 4;
-    const trainer         = document.getElementById('bulkTrainer').value.trim();
-    const location        = document.getElementById('bulkLocation').value.trim();
+    const eventType       = document.getElementById('bulkEventType').value;
+    const trainer         = document.getElementById('bulkTrainer').value;
+    const location        = document.getElementById('bulkLocation').value;
     const rows            = document.querySelectorAll('#bulkSlotRows > div');
     const schedule        = [];
 
@@ -661,7 +791,7 @@
     const r = await fetch('/api/slots/bulk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminPassword, weeks, schedule, trainer, location, maxParticipants }),
+      body: JSON.stringify({ adminPassword, weeks, schedule, eventType, trainer, location, maxParticipants }),
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
@@ -686,8 +816,9 @@
         <strong>⚽ ${b.playerName}</strong>
         <div class="bc-phone">📞 ${b.phone}</div>
         <div class="bc-date">📅 ${b.slot ? fmt(b.slot.start) : '–'}</div>
-        ${b.slot?.trainer  ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`  : ''}
-        ${b.slot?.location ? `<div class="bc-meta">📍 ${b.slot.location}</div>` : ''}
+        ${b.slot?.eventType ? `<div class="bc-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
+        ${b.slot?.trainer   ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`                 : ''}
+        ${b.slot?.location  ? `<div class="bc-meta">${locationHtml(b.slot.location)}</div>`      : ''}
         ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">💬 ${b.notes}</div>` : ''}
         <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .8rem;margin-top:.5rem"
           onclick="cancelBooking('${b.id}','${b.playerName}')">❌ Anuluj rezerwację</button>
