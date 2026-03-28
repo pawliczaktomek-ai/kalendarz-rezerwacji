@@ -108,9 +108,8 @@
       background: var(--mid);
       border: 1px solid #2a2a4a;
       border-radius: 16px;
-      padding: 1.1rem 1.3rem;
+      padding: 2rem;
       width: 100%; max-width: 480px;
-      max-height: 96vh; overflow-y: auto;
       box-shadow: 0 8px 40px rgba(0,0,0,.5);
       animation: slideUp .25s ease;
     }
@@ -118,39 +117,38 @@
       from { transform: translateY(30px); opacity: 0; }
       to   { transform: translateY(0);    opacity: 1; }
     }
-    .modal h2 { font-size: 1.15rem; margin-bottom: .6rem; display: flex; align-items: center; gap: .5rem; }
+    .modal h2 { font-size: 1.3rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: .5rem; }
     .modal-slot-info {
       background: rgba(39,174,96,.15);
       border: 1px solid rgba(39,174,96,.3);
       border-radius: 8px;
-      padding: .5rem .8rem;
-      margin-bottom: .6rem;
-      font-size: .85rem;
-      line-height: 1.5;
+      padding: .7rem 1rem;
+      margin-bottom: 1.2rem;
+      font-size: .9rem;
+      line-height: 1.7;
     }
     .modal-slot-info.partial {
       background: rgba(230,126,34,.15);
       border-color: rgba(230,126,34,.3);
     }
-    .form-group { margin-bottom: .6rem; }
-    .form-group label { display: block; margin-bottom: .2rem; font-size: .8rem; color: var(--muted); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: .3rem; font-size: .85rem; color: var(--muted); }
     .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       background: rgba(255,255,255,.07);
       border: 1px solid #3a3a5a;
       border-radius: 8px;
-      padding: .45rem .8rem;
+      padding: .6rem .9rem;
       color: var(--text);
-      font-size: .9rem;
+      font-size: .95rem;
       outline: none;
       transition: border-color .2s;
     }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--blue); }
-    .form-group textarea { resize: none; height: 52px; }
-    .form-row { display: grid; gap: .5rem; margin-bottom: .6rem; }
+    .form-group textarea { resize: vertical; min-height: 70px; }
     .form-group select option { background: var(--mid); color: var(--text); }
-    .modal-actions { display: flex; gap: .7rem; margin-top: .6rem; }
-    .modal-actions .btn { flex: 1; padding: .55rem; font-size: .95rem; }
+    .modal-actions { display: flex; gap: .7rem; margin-top: 1.3rem; }
+    .modal-actions .btn { flex: 1; padding: .7rem; font-size: 1rem; }
 
     /* ── Toast ──────────────────────────────────────── */
     #toast {
@@ -259,25 +257,17 @@
   <div class="modal">
     <h2>📅 Zarezerwuj trening</h2>
     <div class="modal-slot-info" id="slotInfo">–</div>
-    <div class="form-row" style="grid-template-columns:1fr 90px">
-      <div class="form-group" style="margin-bottom:0">
-        <label>Imię i nazwisko *</label>
-        <input id="playerName" type="text" placeholder="np. Jan Kowalski" autocomplete="name"/>
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label>Rocznik</label>
-        <input id="playerYear" type="number" placeholder="2010" min="1960" max="2025" style="text-align:center"/>
-      </div>
+    <div class="form-group">
+      <label>Imię i nazwisko *</label>
+      <input id="playerName" type="text" placeholder="np. Jan Kowalski" autocomplete="name"/>
     </div>
-    <div class="form-row" style="grid-template-columns:1fr 1fr">
-      <div class="form-group" style="margin-bottom:0">
-        <label>Nr telefonu *</label>
-        <input id="playerPhone" type="tel" placeholder="np. 600 123 456" autocomplete="tel"/>
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label>Uwagi (opcjonalnie)</label>
-        <textarea id="playerNotes" placeholder="np. strzały, pierwsze zajęcia…"></textarea>
-      </div>
+    <div class="form-group">
+      <label>Numer telefonu * <span style="color:var(--muted);font-size:.8rem">(SMS z potwierdzeniem)</span></label>
+      <input id="playerPhone" type="tel" placeholder="np. 600 123 456" autocomplete="tel"/>
+    </div>
+    <div class="form-group">
+      <label>Uwagi (opcjonalnie)</label>
+      <textarea id="playerNotes" placeholder="np. praca nad strzałami, pierwsze zajęcia…"></textarea>
     </div>
 
     <div id="pricingSection" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;margin-bottom:.8rem">
@@ -303,6 +293,59 @@
     <div class="modal-actions">
       <button class="btn btn-gray"  onclick="closeModal('bookModal')">Anuluj</button>
       <button class="btn btn-green" onclick="submitBooking()">✅ Potwierdź rezerwację</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Modal edycji slotu ════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editSlotModal">
+  <div class="modal" style="max-width:480px">
+    <h2>✏️ Edytuj termin</h2>
+    <div class="grid2">
+      <div class="form-group">
+        <label>Początek *</label>
+        <input type="datetime-local" id="editStart"/>
+      </div>
+      <div class="form-group">
+        <label>Koniec *</label>
+        <input type="datetime-local" id="editEnd"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Typ wydarzenia</label>
+      <select id="editEventType">
+        <option value="trening indywidualny">⚽ Trening indywidualny</option>
+        <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+        <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+        <option value="analiza drużynowa">📊 Analiza drużynowa</option>
+      </select>
+    </div>
+    <div class="grid2">
+      <div class="form-group">
+        <label>Trener</label>
+        <select id="editTrainer">
+          <option value="">-- Wybierz trenera --</option>
+          <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
+          <option value="Radosław Salwa">Radosław Salwa</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Max. uczestników</label>
+        <input type="number" id="editMaxParticipants" value="4" min="1" max="20"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Miejsce treningu</label>
+      <select id="editLocation">
+        <option value="">-- Wybierz miejsce --</option>
+        <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+        <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+        <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-gray" onclick="closeModal('editSlotModal')">Anuluj</button>
+      <button class="btn btn-blue" onclick="submitEditSlot()">💾 Zapisz zmiany</button>
     </div>
   </div>
 </div>
@@ -395,7 +438,7 @@
         <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:.2rem">
           <label class="checkbox-label">
             <input type="checkbox" id="addRepeat" onchange="document.getElementById('repeatRow').style.display=this.checked?'block':'none'"/>
-            Powtarzaj co tydzień
+            Powtarzaj co tydzien
           </label>
         </div>
       </div>
@@ -406,18 +449,18 @@
       <button class="btn btn-green" onclick="addSlot()">➕ Dodaj termin</button>
     </div>
 
-    <!-- ── Harmonogram tygodniowy ── -->
+    <!-- ── Harmonogram tygodniowy -- >
     <div class="tab-content" id="tabBulk">
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">Wygeneruj wolne terminy na kilka tygodni na podstawie szablonu.</p>
 
-      <div class="section-label">⚙️ Ustawienia ogólne</div>
+      <div class="section-label">☟️ Ustawienia ogólne</div>
       <div class="grid3">
         <div class="form-group">
           <label>Liczba tygodni</label>
           <input type="number" id="bulkWeeks" value="4" min="1" max="52"/>
         </div>
         <div class="form-group">
-          <label>Czas trwania (min)</label>
+          <label>Szas trwania (min)</label>
           <input type="number" id="bulkDuration" value="60" min="30" step="15"/>
         </div>
         <div class="form-group">
@@ -456,11 +499,11 @@
             <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
           </select>
         </div>
-      </div>
+      </div> </div>
 
       <div class="section-label">📆 Dni i godziny zajęć</div>
       <div id="bulkSlotRows"></div>
-      <button class="btn btn-gray" style="font-size:.8rem;margin-top:.5rem" onclick="addBulkRow()">+ Dodaj wiersz</button>
+      <button class="btn btn-gray" style="font-size:.8rem;margin-top:.5rem" onclick="addBulkRow()">+ Dodaj Wiersz</button>
 
       <button class="btn btn-green" style="margin-top:.8rem" onclick="submitBulk()">🗓️ Generuj terminy</button>
     </div>
@@ -628,7 +671,6 @@
     document.getElementById('playerName').value  = '';
     document.getElementById('playerPhone').value = '';
     document.getElementById('playerNotes').value = '';
-    document.getElementById('playerYear').value  = '';
     document.getElementById('optPierwszyTrening').checked = false;
     document.getElementById('optPromocja').checked = false;
 
@@ -643,17 +685,12 @@
     const playerName      = document.getElementById('playerName').value.trim();
     const phone           = document.getElementById('playerPhone').value.trim();
     const notes           = document.getElementById('playerNotes').value.trim();
-    const yearVal         = document.getElementById('playerYear').value.trim();
     const pierwsyzTrening = document.getElementById('optPierwszyTrening').checked;
     const promocja        = document.getElementById('optPromocja').checked;
 
     if (!playerName || !phone) { toast('Wypełnij imię i telefon!', 'error'); return; }
 
-    const extraOpts = [
-      yearVal && ('Rocznik: ' + yearVal),
-      pierwsyzTrening && 'Pierwszy trening',
-      promocja && 'Promocja'
-    ].filter(Boolean);
+    const extraOpts = [pierwsyzTrening && 'Pierwszy trening', promocja && 'Promocja'].filter(Boolean);
     const fullNotes = [notes, ...extraOpts].filter(Boolean).join(' | ');
 
     try {
@@ -700,7 +737,9 @@
 
     slots.sort((a, b) => new Date(a.start) - new Date(b.start));
 
+    window._slotsMap = {};
     el.innerHTML = slots.map(s => {
+      window._slotsMap[s.id] = s;
       const isFull    = s.booked;
       const isPartial = !isFull && s.bookingsCount > 0;
       const badgeClass = isFull ? 'badge-booked' : (isPartial ? 'badge-partial' : 'badge-free');
@@ -717,6 +756,8 @@
             ${meta ? `<div class="slot-meta">${meta}</div>` : ''}
           </div>
           <span class="badge ${badgeClass}">${s.bookingsCount}/${s.maxParticipants} miejsc</span>
+          <button class="btn btn-blue" style="font-size:.75rem;padding:.3rem .7rem"
+            onclick="openEditModal('${s.id}')">✏️</button>
           <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .7rem"
             onclick="deleteSlot('${s.id}')">🗑</button>
         </div>
@@ -763,6 +804,63 @@
     });
     if (r.ok) { toast('Termin usunięty'); calendar.refetchEvents(); loadAdminSlots(); }
     else { const d = await r.json(); toast(d.error, 'error'); }
+  }
+
+  // ── Admin – edycja slotu ──────────────────────────────────────────────
+  let _editSlotId = null;
+
+  function openEditModal(id) {
+    const s = window._slotsMap && window._slotsMap[id];
+    if (!s) { toast('Nie znaleziono terminu', 'error'); return; }
+    _editSlotId = id;
+
+    const toLocal = iso => {
+      const d = new Date(iso);
+      const pad = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
+
+    document.getElementById('editStart').value            = toLocal(s.start);
+    document.getElementById('editEnd').value              = toLocal(s.end);
+    document.getElementById('editEventType').value        = s.eventType || 'trening indywidualny';
+    document.getElementById('editTrainer').value          = s.trainer   || '';
+    document.getElementById('editLocation').value         = s.location  || '';
+    document.getElementById('editMaxParticipants').value  = s.maxParticipants || 4;
+
+    openModal('editSlotModal');
+  }
+
+  async function submitEditSlot() {
+    if (!_editSlotId) return;
+    const start           = document.getElementById('editStart').value;
+    const end             = document.getElementById('editEnd').value;
+    const eventType       = document.getElementById('editEventType').value;
+    const trainer         = document.getElementById('editTrainer').value;
+    const location        = document.getElementById('editLocation').value;
+    const maxParticipants = parseInt(document.getElementById('editMaxParticipants').value) || 4;
+
+    if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
+
+    try {
+      const r = await fetch(`/api/slots/${_editSlotId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminPassword,
+          start: new Date(start).toISOString(),
+          end:   new Date(end).toISOString(),
+          eventType, trainer, location, maxParticipants,
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Błąd edycji');
+      closeModal('editSlotModal');
+      toast('✅ Termin zaktualizowany');
+      calendar.refetchEvents();
+      loadAdminSlots();
+    } catch (e) {
+      toast(e.message, 'error');
+    }
   }
 
   // ── Admin – harmonogram ───────────────────────────────────────────────
