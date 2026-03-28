@@ -99,7 +99,7 @@ async function loadData() {
       // Plik jeszcze nie istnieje – zwróć puste dane
       return { slots: [], bookings: [] };
     } catch (e) {
-      console.error('Drive loadData błąd:', e.message);
+      console.error('Drive loadData błąc:', e.message);
       // W razie błędu Drive, spróbuj lokalnego pliku
     }
   }
@@ -143,7 +143,7 @@ async function saveData(data) {
       }
       return;
     } catch (e) {
-      console.error('Drive saveData błąd:', e.message);
+      console.error('Drive saveData błąc:', e.message);
       // Fallback do pliku lokalnego
     }
   }
@@ -395,6 +395,27 @@ app.delete('/api/slots/:id', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
+// Edycja slotu (admin)
+app.patch('/api/slots/:id', requireAdmin, async (req, res) => {
+  const { start, end, eventType, trainer, location, maxParticipants } = req.body;
+  const data = await loadData();
+  const slot = data.slots.find(s => s.id === req.params.id);
+  if (!slot) return res.status(404).json({ error: 'Slot nie istnieje' });
+
+  if (start) slot.start = start;
+  if (end)   slot.end   = end;
+  if (eventType    !== undefined) slot.eventType    = eventType;
+  if (trainer      !== undefined) {
+    slot.trainer      = trainer;
+    slot.trainerPhone = TRAINER_PHONES[trainer] || null;
+  }
+  if (location     !== undefined) slot.location     = location;
+  if (maxParticipants !== undefined) slot.maxParticipants = parseInt(maxParticipants) || 4;
+
+  await saveData(data);
+  res.json({ success: true, slot });
+});
+
 // Masowe dodawanie slotów (admin)
 app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
   const { weeks = 4, schedule, startFrom, eventType, trainer, location, maxParticipants } = req.body;
@@ -493,7 +514,7 @@ app.post('/api/book', async (req, res) => {
       `Czesc ${playerName}! ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! - CSPilkarza`
     );
   } catch (e) {
-    console.error('SMS do zawodnika – błąd ', e.message);
+    console.error('SMS do zawodnika – błąd:', e.message);
   }
 
   // SMS do trenera – wysyłamy do konkretnego trenera przypisanego do slotu
@@ -517,7 +538,7 @@ app.post('/api/book', async (req, res) => {
       try {
         await sendSMS(n, `Nowa rezerwacja (${eventLabel}): ${playerName} (${phone}) - ${dateStr}.${locationInfo} Wolnych miejsc: ${spotsLeft}/${maxParticipants}`);
       } catch (e) {
-        console.error(`SMS do trenera (${n}) – błąd*`, e.message);
+        console.error(`SMS do trenera (${n}) – błąd:`, e.message);
       }
     }
   }
@@ -567,7 +588,7 @@ app.get('/api/bookings', requireAdmin, async (req, res) => {
   const data = await loadData();
   const bookings = data.bookings.map(b => {
     const slot = data.slots.find(s => s.id === b.slotId);
-    return { ...b, slot: slot || null };
+    return { ...b, slot: slot || null });
   });
   res.json(bookings);
 });
