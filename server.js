@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const DATA_DIR  = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'bookings.json');
 
-// Google Drive – trwałe przechowywanie danych (używa tego samego service account co Calendar)
+// Google Drive – trwałe przechowywanie danych (uŸywa tego samego service account co Calendar)
 const GDRIVE_FILENAME = 'csp-bookings.json';
 let _driveClient  = null;
 let _driveFileId  = null;   // zapamiętujemy ID pliku po pierwszym wyszukaniu
@@ -247,7 +247,7 @@ async function addToGoogleCalendar(slot, booking) {
     });
     return res.data.id;
   } catch (err) {
-    console.error('Google Calendar błąd ', err.message);
+    console.error('Google Calendar błąd0', err.message);
     return null;
   }
 }
@@ -588,7 +588,7 @@ app.get('/api/bookings', requireAdmin, async (req, res) => {
   const data = await loadData();
   const bookings = data.bookings.map(b => {
     const slot = data.slots.find(s => s.id === b.slotId);
-    return { ...b, slot: slot || null });
+    return { ...b, slot: slot || null };
   });
   res.json(bookings);
 });
