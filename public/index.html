@@ -166,6 +166,8 @@
 
     /* ── Admin modal ────────────────────────────────── */
     #adminPanel .modal { max-width: 720px; max-height: 90vh; overflow-y: auto; }
+    /* editSlotModal musi być nad adminPanel (1000) */
+    #editSlotModal { z-index: 1100; }
     .admin-tabs { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
     .tab-btn {
       padding: .4rem 1rem; border-radius: 6px; border: 1px solid #3a3a5a;
@@ -283,7 +285,7 @@
 <!-- ══ Header ══════════════════════════════════════════════════════════ -->
 <header>
   <div class="logo">
-    <span>⚽</span>
+    <img src="data:image/webp;base64,UklGRpYDAABXRUJQVlA4IIoDAACQDwCdASowADAAPo06lkelI6IhMdmaAKARiUAWI+hPxQhXxsJ5cYLu5+4eA/jp9ax1zg/rBiLZFD2pysrF+IdBzoG+qPRl/3/Yn8mZmQko8h+6aFGnE8UhkngrXxPfHa8OxYQx5CtYb+HvAqr18VJxQSEWnUQuXGLenGTmjngZRgb5PrgAAP7+kb4UaJTdYZErOHZzWvUjiQJRF2y8mcP5ed2gPXT8HsPSMhXfLZMW6oeraeO4vrMbB8m33cfbummX6Jsp7SZPy//EjRq67ZKZw3xpJgUcpaH8OzTaxMxS2noKSN+DIhYHbNvvM48R/pHAr5+dipLNn+gSSfmGFR/U//WMIG9Z/cXPPS2NWZvOnb+CkZR0H+/NdalGeKbLG9kVs34uNNYC/kuJYMwy2FeW6IuIajU6gINaCtR0R/Jb2+upB6Hx+RY3/1YM6L0m1h3PAVlxpeKWDtN0juqXFu76Zql9i8ZL7iqZRo8DPWHmFpoDmdHG8X1Onxy1CCX+wn3Rfw2+f5Y+m9Tz0KIC0VmuNUKntyr/8S9oZfQnY+dqVubdPC2Kk3yNrt/WbNJB3HoFglw2Sj4G/KjxyxE1i0VMKQGh+c5x74Qad375/kmKa/uvqz8sDm9DdYFYTaJ//FWyOsk4+83hjf4vmrGyYlLig7HOHbJght3WgFffDCPjzRVr28nath8ab+0A6/9vOGTv3aQafdN68gP/xjeTTTnfbFVdigLYYK0CCntKluTIf5DOxD4fnKBcUNF2Dd/adGsVbpLRmDRD36y5iwrSrWjUMMppKCGR1fNVYwPxTv8uzx8f5UZOCZVMn6v65PKh50mPW8PRT0FZnbd+MTdFi/H/8mG//uvM9ys7U7SL4zhglbYMSSeheDWXiy9jLQ6FyivfT9rY6um2YEtbZvJ/gsnRoYnN52jrZXEno82AQAr5zb44Fvp/Hj/n7Yea59/Ll1tEEpSfe03V7Hzj19Q6wgM/6m6aM33X+yBMUX+Z9WjOlfclJb7J1d+FSB/jkfqN74WjteBUfWrSzBx+9/l/gsSfSTROR+enGYxmtPSsrCk/7RGsXG9nERuRJMqW8VB44CwrDx6CRbGsx3BcDfBmwlpHcZFLsRRdL3c99/Dmg/7gLryqHg+5Q8JK3ItdftLRkqqNmT1Dc8QGP+lcyMu/MTq4tZdQFP5APbKrMqQP4RSWf5+kxo8Sw08AAAA=" alt="CSP" style="width:2.4rem;height:2.4rem;border-radius:50%;object-fit:cover">
     <h1>Centrum Szkolenia Piłkarza<small>Rezerwacje treningów indywidualnych</small></h1>
   </div>
   <div class="header-btns">
@@ -644,13 +646,21 @@
   });
 
   // ── Tabs ──────────────────────────────────────────────────────────────
+  let _activeAdminTab = 'tabSlots';
   function showTab(id) {
+    _activeAdminTab = id;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     event.target.classList.add('active');
     if (id === 'tabSlots')    loadAdminSlots();
     if (id === 'tabBookings') loadAdminBookings();
+  }
+
+  // Odświeżenie kalendarza + listy slotów (tylko gdy aktywna zakładka)
+  function refreshCalendar() {
+    calendar.refetchEvents();
+    if (_activeAdminTab === 'tabSlots') loadAdminSlots();
   }
 
   // ── Formatowanie daty ─────────────────────────────────────────────────
@@ -840,8 +850,7 @@
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
     toast(`✅ Dodano ${d.slots.length} termin(y)`);
-    calendar.refetchEvents();
-    loadAdminSlots();
+    refreshCalendar();
   }
 
   async function deleteSlot(id) {
@@ -851,7 +860,11 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ adminPassword }),
     });
-    if (r.ok) { toast('Termin usunięty'); calendar.refetchEvents(); loadAdminSlots(); }
+    if (r.ok) {
+      toast('Termin usunięty');
+      const ev = calendar.getEventById(id); if (ev) ev.remove();
+      if (_activeAdminTab === 'tabSlots') loadAdminSlots();
+    }
     else { const d = await r.json(); toast(d.error, 'error'); }
   }
 
@@ -905,8 +918,7 @@
       if (!r.ok) throw new Error(d.error || 'Błąd edycji');
       closeModal('editSlotModal');
       toast('✅ Termin zaktualizowany');
-      calendar.refetchEvents();
-      loadAdminSlots();
+      refreshCalendar();
     } catch (e) {
       toast(e.message, 'error');
     }
@@ -959,8 +971,7 @@
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
     toast(`🗓️ Wygenerowano ${d.count} terminów!`);
-    calendar.refetchEvents();
-    loadAdminSlots();
+    refreshCalendar();
   }
 
   // ── Admin – rezerwacje ────────────────────────────────────────────────
