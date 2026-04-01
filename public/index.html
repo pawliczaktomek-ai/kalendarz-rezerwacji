@@ -277,6 +277,12 @@
       #adminPanel .modal { max-height: 95vh; border-radius: 16px 16px 0 0; }
 
       .grid2, .grid3 { grid-template-columns: 1fr; }
+
+      /* ── Week view – horizontal scroll on mobile ── */
+      .fc-view-harness { overflow-x: auto !important; }
+      .fc-col-header-cell,
+      .fc-timegrid-col { min-width: 52px; }
+      .fc-timegrid-axis { width: 28px !important; }
     }
   </style>
 </head>
