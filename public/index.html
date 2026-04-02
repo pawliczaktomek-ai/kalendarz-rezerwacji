@@ -281,7 +281,7 @@
       /* ── Week view – horizontal scroll on mobile ── */
       .fc-view-harness { overflow-x: auto !important; }
       .fc-col-header-cell,
-      .fc-timegrid-col { min-width: 52px; }
+      .fc-timegrid-col { min-width: 40px; }
       .fc-timegrid-axis { width: 28px !important; }
     }
   </style>
@@ -432,6 +432,7 @@
       <button class="tab-btn"        onclick="showTab('tabAdd')">➕ Dodaj termin</button>
       <button class="tab-btn"        onclick="showTab('tabBulk')">🗓️ Harmonogram</button>
       <button class="tab-btn"        onclick="showTab('tabBookings')">📋 Rezerwacje</button>
+      <button class="tab-btn"        onclick="showTab('tabStats')">📊 Statystyki</button>
     </div>
 
     <!-- ── Lista slotów ── -->
@@ -567,8 +568,17 @@
 
     <!-- ── Lista rezerwacji ── -->
     <div class="tab-content" id="tabBookings">
-      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminBookings()">🔄 Odśwież</button>
+      <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-blue" style="font-size:.8rem" onclick="loadAdminBookings()">🔄 Odśwież</button>
+        <button id="btnFuture" class="tab-btn active" style="font-size:.8rem" onclick="filterBookings('future')">⏩ Przyszłe</button>
+        <button id="btnPast"   class="tab-btn"        style="font-size:.8rem" onclick="filterBookings('past')">⏪ Przeszłe</button>
+      </div>
       <div id="adminBookingsList"><em style="color:var(--muted)">Ładowanie…</em></div>
+    </div>
+
+    <div class="tab-content" id="tabStats">
+      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminStats()">🔄 Odśwież</button>
+      <div id="adminStatsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
     <div style="margin-top:1.2rem;display:flex;justify-content:flex-end">
@@ -661,6 +671,7 @@
     event.target.classList.add('active');
     if (id === 'tabSlots')    loadAdminSlots();
     if (id === 'tabBookings') loadAdminBookings();
+    if (id === 'tabStats')    loadAdminStats();
   }
 
   // Odświeżenie kalendarza + listy slotów (tylko gdy aktywna zakładka)
@@ -981,17 +992,32 @@
   }
 
   // ── Admin – rezerwacje ────────────────────────────────────────────────
+  let _allBookings = [];
+  let _bookingsFilter = 'future';
+
+  // ── Kalkulator cen ──────────────────────────────────────────────────
+  const PRICE_TABLE = {1:150, 2:125, 3:100, 4:80};
+  function pricePerPerson(playerCount) {
+    return PRICE_TABLE[Math.min(Math.max(playerCount,1),4)];
+  }
+
   async function loadAdminBookings() {
     if (!adminPassword) return;
     const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(adminPassword)}`);
-    const bookings = await r.json();
-    const el = document.getElementById('adminBookingsList');
+    _allBookings = await r.json();
+    _allBookings.sort((a, b) => new Date(a.slot?.start || 0) - new Date(b.slot?.start || 0));
+    renderBookings();
+  }
 
-    if (!bookings.length) { el.innerHTML = '<em style="color:var(--muted)">Brak rezerwacji.</em>'; return; }
+  function filterBookings(f) {
+    _bookingsFilter = f;
+    document.getElementById('btnFuture').classList.toggle('active', f === 'future');
+    document.getElementById('btnPast').classList.toggle('active', f === 'past');
+    renderBookings();
+  }
 
-    bookings.sort((a, b) => new Date(a.slot?.start || 0) - new Date(b.slot?.start || 0));
-
-    el.innerHTML = bookings.map(b => `
+  function bookingCardHtml(b) {
+    return `
       <div class="booking-card">
         <strong>⚽ ${b.playerName}</strong>
         <div class="bc-phone">📞 ${b.phone}</div>
@@ -1002,8 +1028,102 @@
         ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">💬 ${b.notes}</div>` : ''}
         <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .8rem;margin-top:.5rem"
           onclick="cancelBooking('${b.id}','${b.playerName}')">❌ Anuluj rezerwację</button>
-      </div>
-    `).join('');
+      </div>`;
+  }
+
+  function renderBookings() {
+    const el = document.getElementById('adminBookingsList');
+    const now = new Date();
+    const list = _allBookings.filter(b => {
+      const d = new Date(b.slot?.start || 0);
+      return _bookingsFilter === 'future' ? d >= now : d < now;
+    });
+    if (!list.length) { el.innerHTML = '<em style="color:var(--muted)">Brak rezerwacji.</em>'; return; }
+    el.innerHTML = list.map(bookingCardHtml).join('');
+  }
+
+  async function loadAdminStats() {
+    if (!adminPassword) return;
+    const el = document.getElementById('adminStatsList');
+    el.innerHTML = '<em style="color:var(--muted)">Ładowanie…</em>';
+    const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(adminPassword)}`);
+    const allB = await r.json();
+    allB.sort((a, b) => new Date(a.slot?.start || 0) - new Date(b.slot?.start || 0));
+    const now = new Date();
+
+    const slotGroups = {};
+    allB.forEach(b => {
+      const key = b.slot?.start || 'unknown';
+      slotGroups[key] = (slotGroups[key] || 0) + 1;
+    });
+
+    const PLAYERS = ['Radosław Salwa', 'Tomasz Pawliczak'];
+    el.innerHTML = PLAYERS.map(name => {
+      const pb = allB.filter(b => b.playerName && b.playerName.trim().toLowerCase() === name.trim().toLowerCase());
+      if (!pb.length) return `
+        <div style="margin-bottom:1.2rem">
+          <h3 style="margin:0 0 .4rem;font-size:1rem;color:var(--accent)">👤 ${name}</h3>
+          <em style="color:var(--muted);font-size:.85rem">Brak rezerwacji.</em>
+        </div>`;
+
+      const firstStart = pb[0].slot?.start || '';
+      let totalPrice = 0; let freeCount = 0; let promoCount = 0;
+      const past   = pb.filter(b => new Date(b.slot?.start||0) <  now);
+      const future = pb.filter(b => new Date(b.slot?.start||0) >= now);
+
+      const rows = pb.map(b => {
+        const isFut   = new Date(b.slot?.start||0) >= now;
+        const isFirst = b.slot?.start === firstStart;
+        const isPromo = b.notes && /promo|rabat|zniżka|zniż|gratis/i.test(b.notes);
+        const playersInSlot = slotGroups[b.slot?.start] || 1;
+        let price = pricePerPerson(playersInSlot);
+        let priceLabel = '';
+        if (isFirst) {
+          priceLabel = '<span style="color:#4caf50;font-size:.75rem">DARMOWY</span>';
+          freeCount++;
+        } else if (isPromo) {
+          priceLabel = '<span style="color:#ff9800;font-size:.75rem">PROMO 0 zł</span>';
+          promoCount++;
+        } else {
+          priceLabel = `<span style="font-size:.8rem">${price} zł</span>`;
+          if (!isFut) totalPrice += price;
+        }
+        return `
+        <div class="booking-card" style="padding:.5rem .7rem;margin-bottom:.4rem">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="bc-date" style="font-size:.85rem">📅 ${b.slot ? fmt(b.slot.start) : '–'}
+              ${isFut ? '<span style="color:#4caf50;font-size:.72rem">(przyszłe)</span>'
+                      : '<span style="color:var(--muted);font-size:.72rem">(przeszłe)</span>'}
+            </div>
+            <div>${priceLabel}${playersInSlot > 1 ? ` <span style="color:var(--muted);font-size:.72rem">(${playersInSlot} os.)</span>` : ''}</div>
+          </div>
+          ${b.slot?.eventType ? `<div class="bc-meta" style="font-size:.78rem">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
+          ${b.slot?.trainer   ? `<div class="bc-meta" style="font-size:.78rem">👨‍🏫 ${b.slot.trainer}</div>` : ''}
+          ${b.slot?.location  ? `<div class="bc-meta" style="font-size:.78rem">${locationHtml(b.slot.location)}</div>` : ''}
+        </div>`;
+      }).join('');
+
+      const futurePrice = future
+        .filter(b => b.slot?.start !== firstStart && !(b.notes && /promo|rabat|zniżka|zniż|gratis/i.test(b.notes)))
+        .reduce((s,b) => s + pricePerPerson(slotGroups[b.slot?.start]||1), 0);
+
+      return `
+        <div style="margin-bottom:1.2rem">
+          <h3 style="margin:0 0 .5rem;font-size:1rem;color:var(--accent)">👤 ${name}</h3>
+          <div style="display:flex;gap:.8rem;margin-bottom:.5rem;font-size:.82rem;flex-wrap:wrap">
+            <span>🔢 Łącznie: <strong>${pb.length}</strong></span>
+            <span>✅ Przeszłe: <strong>${past.length}</strong></span>
+            <span>⏩ Przyszłe: <strong>${future.length}</strong></span>
+          </div>
+          <div style="display:flex;gap:.8rem;margin-bottom:.6rem;font-size:.82rem;flex-wrap:wrap;padding:.4rem .6rem;background:rgba(255,255,255,.04);border-radius:.4rem">
+            <span>💰 Zapłacono: <strong style="color:#4caf50">${totalPrice} zł</strong></span>
+            <span>⏩ Do zapłaty: <strong style="color:#64b5f6">${futurePrice} zł</strong></span>
+            ${freeCount  ? `<span>🎁 Darmowe: <strong>${freeCount}</strong></span>` : ''}
+            ${promoCount ? `<span>🏷️ Promo: <strong>${promoCount}</strong></span>` : ''}
+          </div>
+          ${rows}
+        </div>`;
+    }).join('<hr style="border-color:#2a2a4a;margin:.8rem 0">');
   }
 
   async function cancelBooking(id, name) {
