@@ -284,6 +284,30 @@
       .fc-timegrid-col { min-width: 40px; }
       .fc-timegrid-axis { width: 28px !important; }
     }
+
+    /* ── Plan miesięczny ────────────────────────────────────────────── */
+    .plan-layout { display: flex; gap: 1.2rem; align-items: flex-start; flex-wrap: wrap; }
+    .plan-cal { flex: 0 0 260px; }
+    .plan-cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+    .plan-dow { font-size: .65rem; color: var(--muted); padding: .25rem 0; font-weight: 600; text-align: center; }
+    .plan-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .plan-day { position: relative; padding: .45rem .1rem; border-radius: .3rem; cursor: pointer; font-size: .82rem; text-align: center; transition: background .12s; }
+    .plan-day:hover { background: rgba(255,255,255,.08); }
+    .plan-day.today { background: var(--accent); color: #fff; font-weight: 700; }
+    .plan-day.selected { outline: 2px solid var(--accent); background: rgba(99,102,241,.15); }
+    .plan-day.today.selected { outline: 2px solid #fff; }
+    .plan-day.other-month { color: var(--muted); pointer-events: none; }
+    .plan-day.has-events::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #4caf50; }
+    .plan-day.today.has-events::after { background: rgba(255,255,255,.85); }
+    .plan-detail { flex: 1; min-width: 180px; }
+    .plan-detail-hdr { font-size: .9rem; font-weight: 700; margin-bottom: .7rem; text-transform: capitalize; }
+    .plan-players { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+    @media (max-width: 480px) { .plan-players { grid-template-columns: 1fr; } }
+    .plan-player-col h4 { font-size: .72rem; font-weight: 800; letter-spacing: .07em; color: var(--accent); margin: 0 0 .4rem; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: .3rem; }
+    .plan-slot { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: .4rem; padding: .4rem .55rem; margin-bottom: .3rem; }
+    .plan-slot-time { font-weight: 700; font-size: .88rem; }
+    .plan-slot-meta { color: var(--muted); font-size: .75rem; margin-top: .1rem; }
+    .plan-empty { color: var(--muted); font-size: .8rem; padding: .3rem 0; }
   </style>
 </head>
 <body>
@@ -433,6 +457,7 @@
       <button class="tab-btn"        onclick="showTab('tabBulk')">🗓️ Harmonogram</button>
       <button class="tab-btn"        onclick="showTab('tabBookings')">📋 Rezerwacje</button>
       <button class="tab-btn"        onclick="showTab('tabStats')">📊 Statystyki</button>
+      <button class="tab-btn"        onclick="showTab('tabPlan')">📅 Plan</button>
     </div>
 
     <!-- ── Lista slotów ── -->
@@ -581,6 +606,13 @@
       <div id="adminStatsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
+    <div class="tab-content" id="tabPlan">
+      <div class="plan-layout">
+        <div class="plan-cal" id="planCalendar"><em style="color:var(--muted)">Ładowanie…</em></div>
+        <div class="plan-detail" id="planDetail"><div class="plan-empty">Kliknij dzień, aby zobaczyć plan.</div></div>
+      </div>
+    </div>
+
     <div style="margin-top:1.2rem;display:flex;justify-content:flex-end">
       <button class="btn btn-gray" onclick="closeModal('adminPanel');adminPassword=null">Zamknij</button>
     </div>
@@ -672,6 +704,7 @@
     if (id === 'tabSlots')    loadAdminSlots();
     if (id === 'tabBookings') loadAdminBookings();
     if (id === 'tabStats')    loadAdminStats();
+    if (id === 'tabPlan')     loadAdminPlan();
   }
 
   // Odświeżenie kalendarza + listy slotów (tylko gdy aktywna zakładka)
@@ -1124,6 +1157,118 @@
           ${rows}
         </div>`;
     }).join('<hr style="border-color:#2a2a4a;margin:.8rem 0">');
+  }
+
+  // ── Plan miesięczny ──────────────────────────────────────────────────
+  let _planBookings = null;
+  let _planYear  = new Date().getFullYear();
+  let _planMonth = new Date().getMonth();
+  let _planSelDate = null;
+
+  const PL_MONTHS     = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'].map(s=>s.slice(1));
+  const PL_MONTHS_CAP = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+  const PL_MONTHS_GEN = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+  const PL_DAYS_LONG  = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+  const PL_DOW        = ['Pon','Wt','Śr','Czw','Pt','Sob','Nd'];
+  const PLAN_PLAYERS  = ['Radosław Salwa','Tomasz Pawliczak'];
+
+  async function loadAdminPlan() {
+    if (!adminPassword) return;
+    if (!_planBookings) {
+      const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(adminPassword)}`);
+      _planBookings = await r.json();
+    }
+    renderPlanCalendar();
+    if (!_planSelDate) {
+      const t = new Date();
+      _planSelDate = t.toISOString().slice(0,10);
+    }
+    showPlanDay(_planSelDate);
+  }
+
+  function planDKey(iso) { return iso ? iso.slice(0,10) : ''; }
+
+  function renderPlanCalendar() {
+    const el = document.getElementById('planCalendar');
+    if (!el) return;
+    const yr = _planYear, mo = _planMonth;
+    const evDays = new Set();
+    if (_planBookings) {
+      _planBookings.forEach(b => {
+        const nm = (b.playerName||'').trim().toLowerCase();
+        if (PLAN_PLAYERS.some(p => p.trim().toLowerCase() === nm)) {
+          const d = planDKey(b.slot?.start); if (d) evDays.add(d);
+        }
+      });
+    }
+    const todayStr = new Date().toISOString().slice(0,10);
+    const firstDow = (new Date(yr, mo, 1).getDay() + 6) % 7;
+    const daysInMo = new Date(yr, mo+1, 0).getDate();
+    const daysInPrev = new Date(yr, mo, 0).getDate();
+    let html = `<div class="plan-cal-header">`
+      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(-1)">‹</button>`
+      + `<span style="font-size:.88rem;font-weight:700">${PL_MONTHS_CAP[mo]} ${yr}</span>`
+      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(1)">›</button>`
+      + `</div><div class="plan-cal-grid">`;
+    PL_DOW.forEach(d => { html += `<div class="plan-dow">${d}</div>`; });
+    for (let i = 0; i < firstDow; i++) html += `<div class="plan-day other-month">${daysInPrev-firstDow+1+i}</div>`;
+    for (let d = 1; d <= daysInMo; d++) {
+      const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const cls = ['plan-day',...(ds===todayStr?['today']:[]),...(ds===_planSelDate?['selected']:[]),...(evDays.has(ds)?['has-events']:[])].join(' ');
+      html += `<div class="${cls}" onclick="planSelDay('${ds}')">${d}</div>`;
+    }
+    const tot = firstDow + daysInMo;
+    const rem = tot%7===0 ? 0 : 7-(tot%7);
+    for (let i = 1; i <= rem; i++) html += `<div class="plan-day other-month">${i}</div>`;
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function planChMo(delta) {
+    _planMonth += delta;
+    if (_planMonth < 0)  { _planMonth = 11; _planYear--; }
+    if (_planMonth > 11) { _planMonth = 0;  _planYear++; }
+    renderPlanCalendar();
+  }
+
+  function planSelDay(ds) {
+    _planSelDate = ds;
+    renderPlanCalendar();
+    showPlanDay(ds);
+  }
+
+  function showPlanDay(ds) {
+    const el = document.getElementById('planDetail');
+    if (!el) return;
+    const date = new Date(ds + 'T12:00:00');
+    const dow  = PL_DAYS_LONG[date.getDay()];
+    const hdr  = `${dow}, ${date.getDate()} ${PL_MONTHS_GEN[date.getMonth()]} ${date.getFullYear()}`;
+    const dayB = (_planBookings||[]).filter(b => planDKey(b.slot?.start) === ds);
+    let html = `<div class="plan-detail-hdr">${hdr}</div><div class="plan-players">`;
+    PLAN_PLAYERS.forEach(name => {
+      const pb = dayB.filter(b => b.playerName && b.playerName.trim().toLowerCase() === name.trim().toLowerCase());
+      pb.sort((a,b) => new Date(a.slot?.start||0) - new Date(b.slot?.start||0));
+      html += `<div class="plan-player-col"><h4>${name}</h4>`;
+      if (!pb.length) {
+        html += `<div class="plan-empty">Brak treningu</div>`;
+      } else {
+        pb.forEach(b => {
+          const s = b.slot?.start ? new Date(b.slot.start) : null;
+          const e = b.slot?.end   ? new Date(b.slot.end)   : null;
+          const ts = s ? s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : '–';
+          const te = e ? ' – '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : '';
+          html += `<div class="plan-slot">`
+            + `<div class="plan-slot-time">${ts}${te}</div>`
+            + (b.slot?.eventType ? `<div class="plan-slot-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : '')
+            + (b.slot?.trainer   ? `<div class="plan-slot-meta">👨‍🏫 ${b.slot.trainer}</div>` : '')
+            + (b.slot?.location  ? `<div class="plan-slot-meta">${locationHtml(b.slot.location)}</div>` : '')
+            + `</div>`;
+        });
+      }
+      html += `</div>`;
+    });
+    html += `</div>`;
+    el.innerHTML = html;
   }
 
   async function cancelBooking(id, name) {
