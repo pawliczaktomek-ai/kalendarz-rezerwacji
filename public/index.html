@@ -299,6 +299,8 @@
     .plan-day.other-month { color: var(--muted); pointer-events: none; }
     .plan-day.has-events::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: #4caf50; }
     .plan-day.today.has-events::after { background: rgba(255,255,255,.85); }
+    .plan-day.past   { color: rgba(255,255,255,.25); }
+    .plan-day.future { color: #fff; font-weight: 500; }
     .plan-detail { flex: 1; min-width: 180px; }
     .plan-detail-hdr { font-size: .9rem; font-weight: 700; margin-bottom: .7rem; text-transform: capitalize; }
     .plan-players { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
@@ -1214,7 +1216,8 @@
     for (let i = 0; i < firstDow; i++) html += `<div class="plan-day other-month">${daysInPrev-firstDow+1+i}</div>`;
     for (let d = 1; d <= daysInMo; d++) {
       const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const cls = ['plan-day',...(ds===todayStr?['today']:[]),...(ds===_planSelDate?['selected']:[]),...(evDays.has(ds)?['has-events']:[])].join(' ');
+      const isPast = ds < todayStr, isFut = ds > todayStr;
+      const cls = ['plan-day',...(isPast?['past']:[]),...(isFut?['future']:[]),...(ds===todayStr?['today']:[]),...(ds===_planSelDate?['selected']:[]),...(evDays.has(ds)?['has-events']:[])].join(' ');
       html += `<div class="${cls}" onclick="planSelDay('${ds}')">${d}</div>`;
     }
     const tot = firstDow + daysInMo;
