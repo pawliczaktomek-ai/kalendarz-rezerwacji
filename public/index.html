@@ -327,7 +327,11 @@
 
 <!-- ══ Main ════════════════════════════════════════════════════════════ -->
 <main>
-  <div class="legend">
+  <div class="plan-layout" style="padding:.5rem 0 1rem">
+    <div class="plan-cal" id="mainPlanCal"><em style="color:var(--muted)">Ładowanie…</em></div>
+    <div class="plan-detail" id="mainPlanDetail"><div class="plan-empty">Kliknij dzień, aby zobaczyć plan treningów.</div></div>
+  </div>
+  <div class="legend" style="display:none">
     <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Wolny termin – kliknij, by zarezerwować</div>
     <div class="legend-item"><div class="dot" style="background:var(--orange)"></div> Częściowo zajęty – zostały wolne miejsca</div>
     <div class="legend-item"><div class="dot" style="background:var(--red)"></div> Brak miejsc</div>
@@ -1286,7 +1290,94 @@
   }
 
   // ── Init ──────────────────────────────────────────────────────────────
+  // ── Plan główny (publiczny) ────────────────────────────────────────────────
+  let _mPlan=null,_mYear=new Date().getFullYear(),_mMonth=new Date().getMonth(),_mSel=null;
+
+  async function loadMainPlan(){
+    const r=await fetch('/api/plan');
+    _mPlan=await r.json();
+    _mSel=new Date().toISOString().slice(0,10);
+    renderMainPlanCal();
+    showMainPlanDay(_mSel);
+  }
+
+  function renderMainPlanCal(){
+    const el=document.getElementById('mainPlanCal');
+    if(!el)return;
+    const yr=_mYear,mo=_mMonth;
+    const evDays=new Set();
+    if(_mPlan)_mPlan.forEach(b=>{const d=b.start?.slice(0,10);if(d)evDays.add(d);});
+    const todayStr=new Date().toISOString().slice(0,10);
+    const firstDow=(new Date(yr,mo,1).getDay()+6)%7;
+    const daysInMo=new Date(yr,mo+1,0).getDate();
+    const daysInPrev=new Date(yr,mo,0).getDate();
+    let html=`<div class="plan-cal-header">`
+      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(-1)">‹</button>`
+      +`<span style="font-size:.9rem;font-weight:700">${PL_MONTHS_CAP[mo]} ${yr}</span>`
+      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(1)">›</button>`
+      +`</div><div class="plan-cal-grid">`;
+    PL_DOW.forEach(d=>{html+=`<div class="plan-dow">${d}</div>`;});
+    for(let i=0;i<firstDow;i++)html+=`<div class="plan-day other-month">${daysInPrev-firstDow+1+i}</div>`;
+    for(let d=1;d<=daysInMo;d++){
+      const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isPast=ds<todayStr,isFut=ds>todayStr;
+      const cls=['plan-day',...(isPast?['past']:[]),...(isFut?['future']:[]),...(ds===todayStr?['today']:[]),...(ds===_mSel?['selected']:[]),...(evDays.has(ds)?['has-events']:[])].join(' ');
+      html+=`<div class="${cls}" onclick="mPlanSelDay('${ds}')">${d}</div>`;
+    }
+    const tot=firstDow+daysInMo,rem=tot%7===0?0:7-(tot%7);
+    for(let i=1;i<=rem;i++)html+=`<div class="plan-day other-month">${i}</div>`;
+    html+='</div>';
+    el.innerHTML=html;
+  }
+
+  function mPlanChMo(delta){
+    _mMonth+=delta;
+    if(_mMonth<0){_mMonth=11;_mYear--;}
+    if(_mMonth>11){_mMonth=0;_mYear++;}
+    renderMainPlanCal();
+  }
+
+  function mPlanSelDay(ds){
+    _mSel=ds;
+    renderMainPlanCal();
+    showMainPlanDay(ds);
+  }
+
+  function showMainPlanDay(ds){
+    const el=document.getElementById('mainPlanDetail');
+    if(!el||!_mPlan)return;
+    const date=new Date(ds+'T12:00:00');
+    const hdr=`${PL_DAYS_LONG[date.getDay()]}, ${date.getDate()} ${PL_MONTHS_GEN[date.getMonth()]} ${date.getFullYear()}`;
+    const dayB=_mPlan.filter(b=>b.start?.slice(0,10)===ds);
+    let html=`<div class="plan-detail-hdr">${hdr}</div><div class="plan-players">`;
+    PLAN_PLAYERS.forEach(name=>{
+      const pb=dayB.filter(b=>b.playerName&&b.playerName.trim().toLowerCase()===name.trim().toLowerCase());
+      pb.sort((a,b)=>new Date(a.start||0)-new Date(b.start||0));
+      html+=`<div class="plan-player-col"><h4>${name}</h4>`;
+      if(!pb.length){
+        html+=`<div class="plan-empty">Brak treningu</div>`;
+      }else{
+        pb.forEach(b=>{
+          const s=b.start?new Date(b.start):null;
+          const e=b.end?new Date(b.end):null;
+          const ts=s?s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'–';
+          const te=e?' – '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
+          html+=`<div class="plan-slot">`
+            +`<div class="plan-slot-time">${ts}${te}</div>`
+            +(b.eventType?`<div class="plan-slot-meta">🏷️ ${eventTypeLabel(b.eventType)}</div>`:'')
+            +(b.trainer?`<div class="plan-slot-meta">👨‍🏫 ${b.trainer}</div>`:'')
+            +(b.location?`<div class="plan-slot-meta">${locationHtml(b.location)}</div>`:'')
+            +`</div>`;
+        });
+      }
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+    el.innerHTML=html;
+  }
+
   loadCalendar();
+  loadMainPlan();
 </script>
 </body>
 </html>
