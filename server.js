@@ -595,6 +595,28 @@ app.get('/api/bookings', requireAdmin, async (req, res) => {
 
 // ─── Start serwera ────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
+
+// ─── Plan publiczny (bez auth) ────────────────────────────────────────────────
+app.get('/api/plan', async (req, res) => {
+  const data = await loadData();
+  const PLAYERS = ['Radosław Salwa', 'Tomasz Pawliczak'];
+  const plan = data.bookings
+    .filter(b => PLAYERS.some(p => p.trim().toLowerCase() === (b.playerName||'').trim().toLowerCase()))
+    .map(b => {
+      const slot = data.slots.find(s => s.id === b.slotId);
+      return {
+        playerName: b.playerName,
+        start: slot?.start,
+        end:   slot?.end,
+        eventType: slot?.eventType,
+        trainer:   slot?.trainer,
+        location:  slot?.location,
+      };
+    })
+    .filter(b => b.start);
+  res.json(plan);
+});
+
 app.listen(PORT, () => {
   console.log(`\nKalendarz rezerwacji dziala na http://localhost:${PORT}`);
   console.log(`Haslo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
