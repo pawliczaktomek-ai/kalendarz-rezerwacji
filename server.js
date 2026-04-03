@@ -599,21 +599,13 @@ const PORT = process.env.PORT || 3000;
 // ─── Plan publiczny (bez auth) ────────────────────────────────────────────────
 app.get('/api/plan', async (req, res) => {
   const data = await loadData();
-  const PLAYERS = ['Radosław Salwa', 'Tomasz Pawliczak'];
-  const plan = data.bookings
-    .filter(b => PLAYERS.some(p => p.trim().toLowerCase() === (b.playerName||'').trim().toLowerCase()))
-    .map(b => {
-      const slot = data.slots.find(s => s.id === b.slotId);
-      return {
-        playerName: b.playerName,
-        start: slot?.start,
-        end:   slot?.end,
-        eventType: slot?.eventType,
-        trainer:   slot?.trainer,
-        location:  slot?.location,
-      };
+  const plan = (data.slots || [])
+    .filter(s => { const t = (s.trainer||'').toLowerCase(); return t.includes('salwa') || t.includes('pawliczak'); })
+    .map(s => {
+      const bc = (data.bookings||[]).filter(b => b.slotId === s.id).length;
+      return { playerName: s.trainer, start: s.start, end: s.end, eventType: s.eventType, trainer: s.trainer, location: s.location, spotsLeft: (s.maxParticipants||4)-bc, maxParticipants: s.maxParticipants||4, bookingsCount: bc };
     })
-    .filter(b => b.start);
+    .filter(s => s.start);
   res.json(plan);
 });
 
