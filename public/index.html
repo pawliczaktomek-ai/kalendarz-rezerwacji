@@ -5,10 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Centrum Szkolenia Piłkarza – Rezerwacje treningów</title>
 
-  <!-- FullCalendar -->
-  <link  href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/pl.global.min.js"></script>
 
   <style>
     :root {
@@ -307,6 +303,8 @@
     @media (max-width: 480px) { .plan-players { grid-template-columns: 1fr; } }
     .plan-player-col h4 { font-size: .72rem; font-weight: 800; letter-spacing: .07em; color: var(--accent); margin: 0 0 .4rem; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: .3rem; }
     .plan-slot { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: .4rem; padding: .4rem .55rem; margin-bottom: .3rem; }
+    .plan-book-btn { display:block; width:100%; margin-top:8px; padding:8px 0; background:var(--blue); color:#fff; border:none; border-radius:6px; font-size:0.9rem; font-weight:700; letter-spacing:.06em; cursor:pointer; transition:background .2s; }
+    .plan-book-btn:hover { background:#1a6497; }
     .plan-slot-time { font-weight: 700; font-size: .88rem; }
     .plan-slot-meta { color: var(--muted); font-size: .75rem; margin-top: .1rem; }
     .plan-empty { color: var(--muted); font-size: .8rem; padding: .3rem 0; }
@@ -336,7 +334,6 @@
     <div class="legend-item"><div class="dot" style="background:var(--orange)"></div> Częściowo zajęty – zostały wolne miejsca</div>
     <div class="legend-item"><div class="dot" style="background:var(--red)"></div> Brak miejsc</div>
   </div>
-  <div id="calendar"></div>
 </main>
 
 <!-- ══ Modal rezerwacji ═════════════════════════════════════════════════ -->
@@ -725,44 +722,6 @@
       weekday: 'long', day: 'numeric', month: 'long',
       hour: '2-digit', minute: '2-digit',
     });
-  }
-
-  // ── Kalendarz ─────────────────────────────────────────────────────────
-  async function loadCalendar() {
-    const el = document.getElementById('calendar');
-    calendar = new FullCalendar.Calendar(el, {
-      locale: 'pl',
-      initialView: window.innerWidth < 640 ? 'timeGridDay' : 'timeGridWeek',
-      headerToolbar: {
-        left:   'prev,next today',
-        center: 'title',
-        right:  'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
-      },
-      slotMinTime: '07:00:00',
-      slotMaxTime: '22:00:00',
-      slotDuration: '00:30:00',
-      height: 'auto',
-      nowIndicator: true,
-      events: '/api/slots',
-      eventClick: info => {
-        const p = info.event.extendedProps;
-        if (!p.booked) {
-          openBookModal(info.event.id, info.event.start, info.event.end, p);
-        } else {
-          toast('Ten termin jest już w pełni zajęty.', 'error');
-        }
-      },
-      eventDidMount: info => {
-        const p = info.event.extendedProps;
-        const parts = [];
-        if (p.eventType) parts.push(eventTypeLabel(p.eventType));
-        if (p.trainer)   parts.push(`Trener: ${p.trainer}`);
-        if (p.location)  parts.push(`Miejsce: ${locationText(p.location)}`);
-        parts.push(`Wolnych miejsc: ${p.spotsLeft ?? '?'}/${p.maxParticipants ?? 4}`);
-        info.el.title = parts.join(' | ');
-      },
-    });
-    calendar.render();
   }
 
   // ── Rezerwacja ────────────────────────────────────────────────────────
@@ -1367,6 +1326,7 @@
             +(b.eventType?`<div class="plan-slot-meta">🏷️ ${eventTypeLabel(b.eventType)}</div>`:'')
             +(b.trainer?`<div class="plan-slot-meta">👨‍🏫 ${b.trainer}</div>`:'')
             +(b.location?`<div class="plan-slot-meta">${locationHtml(b.location)}</div>`:'')
+            +`<button class="plan-book-btn" onclick="openBookModal('${b.id}','${b.start}','${b.end}',{spotsLeft:${b.spotsLeft},maxParticipants:${b.maxParticipants}})">REZERWUJ</button>`
             +`</div>`;
         });
       }
@@ -1376,7 +1336,6 @@
     el.innerHTML=html;
   }
 
-  loadCalendar();
   loadMainPlan();
 </script>
 </body>
