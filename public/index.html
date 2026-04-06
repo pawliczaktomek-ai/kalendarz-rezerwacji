@@ -353,9 +353,15 @@
   <div class="modal">
     <h2>📅 Zarezerwuj trening</h2>
     <div class="modal-slot-info" id="slotInfo">–</div>
-    <div class="form-group">
-      <label>Imię i nazwisko *</label>
-      <input id="playerName" type="text" placeholder="np. Jan Kowalski" autocomplete="name"/>
+    <div style="display:flex;gap:.75rem">
+      <div class="form-group" style="flex:2">
+        <label>Imię i nazwisko *</label>
+        <input id="playerName" type="text" placeholder="np. Jan Kowalski" autocomplete="name"/>
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Rocznik</label>
+        <input id="playerYear" type="number" placeholder="np. 2010" min="1950" max="2025"/>
+      </div>
     </div>
     <div class="form-group">
       <label>Numer telefonu * <span style="color:var(--muted);font-size:.8rem">(SMS z potwierdzeniem)</span></label>
