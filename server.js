@@ -151,6 +151,23 @@ async function saveData(data) {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
+// Auto-fix corrupted slots on startup
+(async () => {
+  try {
+    const d = await loadData();
+    let ch = false;
+    for (const s of (d.slots || [])) {
+      const t = (s.trainer || '').toLowerCase();
+      if (t.includes('pawliczak') && (s.start || '').startsWith('2026-04-03') && !(s.end || '').startsWith('2026-04-03')) {
+        console.log('[fix] Correcting slot', s.id);
+        s.end = '2026-04-03T17:00:00.000Z';
+        ch = true;
+      }
+    }
+    if (ch) await saveData(d);
+  } catch (e) { console.error('[fix] error:', e.message); }
+})();
+
 
 // ─── Mapowanie trenerów na numery telefonów ────────────────────────────────────
 const TRAINER_PHONES = {
@@ -603,7 +620,7 @@ app.get('/api/plan', async (req, res) => {
     .filter(s => { const t = (s.trainer||'').toLowerCase(); return t.includes('salwa') || t.includes('pawliczak'); })
     .map(s => {
       const bc = (data.bookings||[]).filter(b => b.slotId === s.id).length;
-      return { playerName: s.trainer, start: s.start, end: s.end, eventType: s.eventType, trainer: s.trainer, location: s.location, spotsLeft: (s.maxParticipants||4)-bc, maxParticipants: s.maxParticipants||4, bookingsCount: bc };
+      return { id: s.id, playerName: s.trainer, start: s.start, end: s.end, eventType: s.eventType, trainer: s.trainer, location: s.location, spotsLeft: (s.maxParticipants||4)-bc, maxParticipants: s.maxParticipants||4, bookingsCount: bc };
     })
     .filter(s => s.start);
   res.json(plan);
