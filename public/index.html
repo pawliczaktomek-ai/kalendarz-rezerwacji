@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Centrum Szkolenia PiÅkarza â Rezerwacje treningÃ³w</title>
+  <title>Centrum Szkolenia Piłkarza – Rezerwacje treningów</title>
 
 
   <style>
@@ -29,7 +29,7 @@
       min-height: 100vh;
     }
 
-    /* ââ Header âââââââââââââââââââââââââââââââââââââââ */
+    /* ── Header ─────────────────────────────────────── */
     header {
       background: linear-gradient(135deg, var(--mid), var(--card));
       padding: 1rem 2rem;
@@ -57,7 +57,7 @@
     .btn-gray   { background: #444;          color: #fff; }
     .btn:hover  { opacity: .85; transform: translateY(-1px); }
 
-    /* ââ Main âââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Main ───────────────────────────────────────── */
     main { padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
 
     .legend {
@@ -91,7 +91,7 @@
     .fc-col-header-cell-cushion { color: var(--text) !important; }
     .fc-daygrid-day-number { color: var(--muted) !important; }
 
-    /* ââ Modals âââââââââââââââââââââââââââââââââââââââ */
+    /* ── Modals ─────────────────────────────────────── */
     .modal-overlay {
       display: none;
       position: fixed; inset: 0;
@@ -146,7 +146,7 @@
     .modal-actions { display: flex; gap: .7rem; margin-top: 1.3rem; }
     .modal-actions .btn { flex: 1; padding: .7rem; font-size: 1rem; }
 
-    /* ââ Toast ââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Toast ──────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 2rem; right: 2rem;
       background: var(--green); color: #fff;
@@ -160,9 +160,9 @@
     #toast.show { transform: translateY(0); opacity: 1; }
     #toast.error { background: var(--red); }
 
-    /* ââ Admin modal ââââââââââââââââââââââââââââââââââ */
+    /* ── Admin modal ────────────────────────────────── */
     #adminPanel .modal { max-width: 720px; max-height: 90vh; overflow-y: auto; }
-    /* editSlotModal musi byÄ nad adminPanel (1000) */
+    /* editSlotModal musi być nad adminPanel (1000) */
     #editSlotModal { z-index: 1100; }
     .admin-tabs { display: flex; gap: .5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
     .tab-btn {
@@ -218,9 +218,9 @@
     }
     a.maps-link:hover { text-decoration: underline; }
 
-    /* ââ Responsive âââââââââââââââââââââââââââââââââââ */
+    /* ── Responsive ─────────────────────────────────── */
     @media (max-width: 640px) {
-      /* ââ Layout ââ */
+      /* ── Layout ── */
       header { padding: .5rem .8rem; }
       main   { padding: .6rem .8rem; }
       .legend { gap: .6rem; margin-bottom: .6rem; }
@@ -230,7 +230,7 @@
       .logo h1 small { font-size: .62rem; }
       .btn { padding: .35rem .7rem; font-size: .8rem; }
 
-      /* ââ Kalendarz â zwartszy ââ */
+      /* ── Kalendarz – zwartszy ── */
       #calendar { padding: .3rem; }
       .fc-toolbar-title { font-size: .9rem !important; }
       .fc-button {
@@ -248,7 +248,7 @@
       .fc-list-event-time   { font-size: .75rem !important; }
       .fc-daygrid-event .fc-event-title { font-size: .72rem !important; }
 
-      /* ââ Modal â bottom sheet ââ */
+      /* ── Modal – bottom sheet ── */
       .modal-overlay { align-items: flex-end; }
       .modal {
         border-radius: 16px 16px 0 0;
@@ -269,18 +269,18 @@
       .form-group input, .form-group select, .form-group textarea { font-size: .88rem; padding: .5rem .75rem; }
       .modal-actions .btn { font-size: .9rem; padding: .65rem; }
 
-      /* ââ Admin panel ââ */
+      /* ── Admin panel ── */
       #adminPanel .modal { max-height: 95vh; border-radius: 16px 16px 0 0; }
 
       .grid2, .grid3 { grid-template-columns: 1fr; }
 
-      /* ââ Week view â horizontal scroll on mobile ââ */
+      /* ── Week view – horizontal scroll on mobile ── */
       .fc-view-harness { overflow-x: auto !important; }
       .fc-col-header-cell,
       .fc-timegrid-col { min-width: 40px; }
       .fc-timegrid-axis { width: 28px !important; }
     
-      /* ââ Plan calendar â mobile full-width ââ */
+      /* ── Plan calendar – mobile full-width ── */
       .plan-layout    { flex-direction: column; gap: .6rem; }
       .plan-cal       { flex: 1 1 100%; width: 100%; max-width: 100%; }
       .plan-cal table { width: 100%; table-layout: fixed; }
@@ -290,7 +290,7 @@
       .plan-player-col { min-width: 0; width: 100%; }
 }
 
-    /* ââ Plan miesiÄczny ââââââââââââââââââââââââââââââââââââââââââââââ */
+    /* ── Plan miesięczny ────────────────────────────────────────────── */
     .plan-layout { display: flex; gap: 1.2rem; align-items: flex-start; flex-wrap: wrap; }
     .plan-cal { flex: 0 0 260px; }
     .plan-cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
@@ -324,37 +324,37 @@
 </head>
 <body>
 
-<!-- ââ Header ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Header ══════════════════════════════════════════════════════════ -->
 <header>
   <div class="logo">
     <img src="data:image/webp;base64,UklGRpYDAABXRUJQVlA4IIoDAACQDwCdASowADAAPo06lkelI6IhMdmaAKARiUAWI+hPxQhXxsJ5cYLu5+4eA/jp9ax1zg/rBiLZFD2pysrF+IdBzoG+qPRl/3/Yn8mZmQko8h+6aFGnE8UhkngrXxPfHa8OxYQx5CtYb+HvAqr18VJxQSEWnUQuXGLenGTmjngZRgb5PrgAAP7+kb4UaJTdYZErOHZzWvUjiQJRF2y8mcP5ed2gPXT8HsPSMhXfLZMW6oeraeO4vrMbB8m33cfbummX6Jsp7SZPy//EjRq67ZKZw3xpJgUcpaH8OzTaxMxS2noKSN+DIhYHbNvvM48R/pHAr5+dipLNn+gSSfmGFR/U//WMIG9Z/cXPPS2NWZvOnb+CkZR0H+/NdalGeKbLG9kVs34uNNYC/kuJYMwy2FeW6IuIajU6gINaCtR0R/Jb2+upB6Hx+RY3/1YM6L0m1h3PAVlxpeKWDtN0juqXFu76Zql9i8ZL7iqZRo8DPWHmFpoDmdHG8X1Onxy1CCX+wn3Rfw2+f5Y+m9Tz0KIC0VmuNUKntyr/8S9oZfQnY+dqVubdPC2Kk3yNrt/WbNJB3HoFglw2Sj4G/KjxyxE1i0VMKQGh+c5x74Qad375/kmKa/uvqz8sDm9DdYFYTaJ//FWyOsk4+83hjf4vmrGyYlLig7HOHbJght3WgFffDCPjzRVr28nath8ab+0A6/9vOGTv3aQafdN68gP/xjeTTTnfbFVdigLYYK0CCntKluTIf5DOxD4fnKBcUNF2Dd/adGsVbpLRmDRD36y5iwrSrWjUMMppKCGR1fNVYwPxTv8uzx8f5UZOCZVMn6v65PKh50mPW8PRT0FZnbd+MTdFi/H/8mG//uvM9ys7U7SL4zhglbYMSSeheDWXiy9jLQ6FyivfT9rY6um2YEtbZvJ/gsnRoYnN52jrZXEno82AQAr5zb44Fvp/Hj/n7Yea59/Ll1tEEpSfe03V7Hzj19Q6wgM/6m6aM33X+yBMUX+Z9WjOlfclJb7J1d+FSB/jkfqN74WjteBUfWrSzBx+9/l/gsSfSTROR+enGYxmtPSsrCk/7RGsXG9nERuRJMqW8VB44CwrDx6CRbGsx3BcDfBmwlpHcZFLsRRdL3c99/Dmg/7gLryqHg+5Q8JK3ItdftLRkqqNmT1Dc8QGP+lcyMu/MTq4tZdQFP5APbKrMqQP4RSWf5+kxo8Sw08AAAA=" alt="CSP" style="width:2.4rem;height:2.4rem;border-radius:50%;object-fit:cover">
-    <h1>Centrum Szkolenia PiÅkarza<small>Rezerwacje treningÃ³w indywidualnych</small></h1>
+    <h1>Centrum Szkolenia Piłkarza<small>Rezerwacje treningów indywidualnych</small></h1>
   </div>
   <div class="header-btns">
-    <button class="btn btn-blue" onclick="openAdminLogin()">ð Panel trenera</button>
+    <button class="btn btn-blue" onclick="openAdminLogin()">🔑 Panel trenera</button>
   </div>
 </header>
 
-<!-- ââ Main ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Main ════════════════════════════════════════════════════════════ -->
 <main>
   <div class="plan-layout" style="padding:.5rem 0 1rem">
-    <div class="plan-cal" id="mainPlanCal"><em style="color:var(--muted)">Åadowanieâ¦</em></div>
-    <div class="plan-detail" id="mainPlanDetail"><div class="plan-empty">Kliknij dzieÅ, aby zobaczyÄ plan treningÃ³w.</div></div>
+    <div class="plan-cal" id="mainPlanCal"><em style="color:var(--muted)">Ładowanie…</em></div>
+    <div class="plan-detail" id="mainPlanDetail"><div class="plan-empty">Kliknij dzień, aby zobaczyć plan treningów.</div></div>
   </div>
   <div class="legend" style="display:none">
-    <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Wolny termin â kliknij, by zarezerwowaÄ</div>
-    <div class="legend-item"><div class="dot" style="background:var(--orange)"></div> CzÄÅciowo zajÄty â zostaÅy wolne miejsca</div>
+    <div class="legend-item"><div class="dot" style="background:var(--green)"></div> Wolny termin – kliknij, by zarezerwować</div>
+    <div class="legend-item"><div class="dot" style="background:var(--orange)"></div> Częściowo zajęty – zostały wolne miejsca</div>
     <div class="legend-item"><div class="dot" style="background:var(--red)"></div> Brak miejsc</div>
   </div>
 </main>
 
-<!-- ââ Modal rezerwacji âââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Modal rezerwacji ═════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="bookModal">
   <div class="modal">
-    <h2>ð Zarezerwuj trening</h2>
-    <div class="modal-slot-info" id="slotInfo">â</div>
+    <h2>📅 Zarezerwuj trening</h2>
+    <div class="modal-slot-info" id="slotInfo">–</div>
     <div class="form-group">
-      <label>ImiÄ i nazwisko *</label>
+      <label>Imię i nazwisko *</label>
       <input id="playerName" type="text" placeholder="np. Jan Kowalski" autocomplete="name"/>
     </div>
     <div class="form-group">
@@ -363,7 +363,7 @@
     </div>
     <div class="form-group">
       <label>Uwagi (opcjonalnie)</label>
-      <textarea id="playerNotes" placeholder="np. praca nad strzaÅami, pierwsze zajÄciaâ¦"></textarea>
+      <textarea id="playerNotes" placeholder="np. praca nad strzałami, pierwsze zajęcia…"></textarea>
     </div>
 
     <div id="pricingSection" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;margin-bottom:.8rem">
@@ -398,18 +398,18 @@
 
     <div class="modal-actions">
       <button class="btn btn-gray"  onclick="closeModal('bookModal')">Anuluj</button>
-      <button class="btn btn-green" onclick="submitBooking()">â PotwierdÅº rezerwacjÄ</button>
+      <button class="btn btn-green" onclick="submitBooking()">✅ Potwierdź rezerwację</button>
     </div>
   </div>
 </div>
 
-<!-- ââ Modal edycji slotu ââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Modal edycji slotu ════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="editSlotModal">
   <div class="modal" style="max-width:480px">
-    <h2>âï¸ Edytuj termin</h2>
+    <h2>✏️ Edytuj termin</h2>
     <div class="grid2">
       <div class="form-group">
-        <label>PoczÄtek *</label>
+        <label>Początek *</label>
         <input type="datetime-local" id="editStart"/>
       </div>
       <div class="form-group">
@@ -420,10 +420,10 @@
     <div class="form-group">
       <label>Typ wydarzenia</label>
       <select id="editEventType">
-        <option value="trening indywidualny">â½ Trening indywidualny</option>
-        <option value="trening pozycyjny">â½ Trening pozycyjny</option>
-        <option value="analiza indywidualna">ð¥ Analiza indywidualna</option>
-        <option value="analiza druÅ¼ynowa">ð Analiza druÅ¼ynowa</option>
+        <option value="trening indywidualny">⚽ Trening indywidualny</option>
+        <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+        <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+        <option value="analiza drużynowa">📊 Analiza drużynowa</option>
       </select>
     </div>
     <div class="grid2">
@@ -432,11 +432,11 @@
         <select id="editTrainer">
           <option value="">-- Wybierz trenera --</option>
           <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
-          <option value="RadosÅaw Salwa">RadosÅaw Salwa</option>
+          <option value="Radosław Salwa">Radosław Salwa</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Max. uczestnikÃ³w</label>
+        <label>Max. uczestników</label>
         <input type="number" id="editMaxParticipants" value="4" min="1" max="20"/>
       </div>
     </div>
@@ -444,25 +444,25 @@
       <label>Miejsce treningu</label>
       <select id="editLocation">
         <option value="">-- Wybierz miejsce --</option>
-        <option value="Orlik SP11">Orlik SP11 â ul. Spawaczy, Zielona GÃ³ra</option>
-        <option value="Orlik ZE 10">Orlik ZE 10 â ul. Elektronowa 6E, Zielona GÃ³ra</option>
-        <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska â ul. Sulechowska 37</option>
+        <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+        <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+        <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
       </select>
     </div>
     <div class="modal-actions">
       <button class="btn btn-gray" onclick="closeModal('editSlotModal')">Anuluj</button>
-      <button class="btn btn-blue" onclick="submitEditSlot()">ð¾ Zapisz zmiany</button>
+      <button class="btn btn-blue" onclick="submitEditSlot()">💾 Zapisz zmiany</button>
     </div>
   </div>
 </div>
 
-<!-- ââ Modal logowania admina ââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Modal logowania admina ══════════════════════════════════════════ -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal" style="max-width:360px">
-    <h2>ð Logowanie trenera</h2>
+    <h2>🔑 Logowanie trenera</h2>
     <div class="form-group">
-      <label>HasÅo administratora</label>
-      <input id="adminPwd" type="password" placeholder="HasÅoâ¦" onkeydown="if(event.key==='Enter')loginAdmin()"/>
+      <label>Hasło administratora</label>
+      <input id="adminPwd" type="password" placeholder="Hasło…" onkeydown="if(event.key==='Enter')loginAdmin()"/>
     </div>
     <div class="modal-actions">
       <button class="btn btn-gray"  onclick="closeModal('loginModal')">Anuluj</button>
@@ -471,32 +471,32 @@
   </div>
 </div>
 
-<!-- ââ Panel admina ââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Panel admina ════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="adminPanel">
   <div class="modal" style="max-width:720px">
-    <h2>âï¸ Panel trenera</h2>
+    <h2>⚙️ Panel trenera</h2>
 
     <div class="admin-tabs">
-      <button class="tab-btn active" onclick="showTab('tabSlots')">ð Terminy</button>
-      <button class="tab-btn"        onclick="showTab('tabAdd')">â Dodaj termin</button>
-      <button class="tab-btn"        onclick="showTab('tabBulk')">ðï¸ Harmonogram</button>
-      <button class="tab-btn"        onclick="showTab('tabBookings')">ð Rezerwacje</button>
-      <button class="tab-btn"        onclick="showTab('tabStats')">ð Statystyki</button>
-      <button class="tab-btn"        onclick="showTab('tabPlan')">ð Plan</button>
+      <button class="tab-btn active" onclick="showTab('tabSlots')">📆 Terminy</button>
+      <button class="tab-btn"        onclick="showTab('tabAdd')">➕ Dodaj termin</button>
+      <button class="tab-btn"        onclick="showTab('tabBulk')">🗓️ Harmonogram</button>
+      <button class="tab-btn"        onclick="showTab('tabBookings')">📋 Rezerwacje</button>
+      <button class="tab-btn"        onclick="showTab('tabStats')">📊 Statystyki</button>
+      <button class="tab-btn"        onclick="showTab('tabPlan')">📅 Plan</button>
     </div>
 
-    <!-- ââ Lista slotÃ³w ââ -->
+    <!-- ── Lista slotów ── -->
     <div class="tab-content active" id="tabSlots">
-      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminSlots()">ð OdÅwieÅ¼</button>
-      <div id="adminSlotsList"><em style="color:var(--muted)">Åadowanieâ¦</em></div>
+      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminSlots()">🔄 Odśwież</button>
+      <div id="adminSlotsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
-    <!-- ââ Dodaj pojedynczy slot ââ -->
+    <!-- ── Dodaj pojedynczy slot ── -->
     <div class="tab-content" id="tabAdd">
-      <div class="section-label">ð Termin</div>
+      <div class="section-label">📅 Termin</div>
       <div class="grid2">
         <div class="form-group">
-          <label>PoczÄtek *</label>
+          <label>Początek *</label>
           <input type="datetime-local" id="addStart"/>
         </div>
         <div class="form-group">
@@ -505,48 +505,48 @@
         </div>
       </div>
 
-      <div class="section-label">ð·ï¸ Rodzaj zajÄÄ</div>
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
       <div class="form-group">
         <label>Typ wydarzenia</label>
         <select id="addEventType">
-          <option value="trening indywidualny">â½ Trening indywidualny</option>
-          <option value="trening pozycyjny">â½ Trening pozycyjny</option>
-          <option value="analiza indywidualna">ð¥ Analiza indywidualna</option>
-          <option value="analiza druÅ¼ynowa">ð Analiza druÅ¼ynowa</option>
+          <option value="trening indywidualny">⚽ Trening indywidualny</option>
+          <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
         </select>
       </div>
 
-      <div class="section-label">ð¨âð« Trener i miejsce</div>
+      <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
           <select id="addTrainer">
             <option value="">-- Wybierz trenera --</option>
             <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
-            <option value="RadosÅaw Salwa">RadosÅaw Salwa</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
           </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
           <select id="addLocation">
             <option value="">-- Wybierz miejsce --</option>
-            <option value="Orlik SP11">Orlik SP11 â ul. Spawaczy, Zielona GÃ³ra</option>
-            <option value="Orlik ZE 10">Orlik ZE 10 â ul. Elektronowa 6E, Zielona GÃ³ra</option>
-            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska â ul. Sulechowska 37</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
           </select>
         </div>
       </div>
 
-      <div class="section-label">ð¥ Uczestnicy</div>
+      <div class="section-label">👥 Uczestnicy</div>
       <div class="grid2">
         <div class="form-group">
-          <label>Max. liczba uczestnikÃ³w</label>
+          <label>Max. liczba uczestników</label>
           <input type="number" id="addMaxParticipants" value="4" min="1" max="20"/>
         </div>
         <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:.2rem">
           <label class="checkbox-label">
             <input type="checkbox" id="addRepeat" onchange="document.getElementById('repeatRow').style.display=this.checked?'block':'none'"/>
-            Powtarzaj co tydzieÅ
+            Powtarzaj co tydzień
           </label>
         </div>
       </div>
@@ -554,14 +554,14 @@
         <label>Liczba tygodni</label>
         <input type="number" id="repeatWeeks" value="4" min="2" max="52"/>
       </div>
-      <button class="btn btn-green" onclick="addSlot()">â Dodaj termin</button>
+      <button class="btn btn-green" onclick="addSlot()">➕ Dodaj termin</button>
     </div>
 
-    <!-- ââ Harmonogram tygodniowy ââ -->
+    <!-- ── Harmonogram tygodniowy ── -->
     <div class="tab-content" id="tabBulk">
       <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">Wygeneruj wolne terminy na kilka tygodni na podstawie szablonu.</p>
 
-      <div class="section-label">âï¸ Ustawienia ogÃ³lne</div>
+      <div class="section-label">⚙️ Ustawienia ogólne</div>
       <div class="grid3">
         <div class="form-group">
           <label>Liczba tygodni</label>
@@ -572,69 +572,69 @@
           <input type="number" id="bulkDuration" value="60" min="30" step="15"/>
         </div>
         <div class="form-group">
-          <label>Max. uczestnikÃ³w</label>
+          <label>Max. uczestników</label>
           <input type="number" id="bulkMaxParticipants" value="4" min="1" max="20"/>
         </div>
       </div>
 
-      <div class="section-label">ð·ï¸ Rodzaj zajÄÄ</div>
+      <div class="section-label">🏷️ Rodzaj zajęć</div>
       <div class="form-group">
         <label>Typ wydarzenia</label>
         <select id="bulkEventType">
-          <option value="trening indywidualny">â½ Trening indywidualny</option>
-          <option value="trening pozycyjny">â½ Trening pozycyjny</option>
-          <option value="analiza indywidualna">ð¥ Analiza indywidualna</option>
-          <option value="analiza druÅ¼ynowa">ð Analiza druÅ¼ynowa</option>
+          <option value="trening indywidualny">⚽ Trening indywidualny</option>
+          <option value="trening pozycyjny">⚽ Trening pozycyjny</option>
+          <option value="analiza indywidualna">🎥 Analiza indywidualna</option>
+          <option value="analiza drużynowa">📊 Analiza drużynowa</option>
         </select>
       </div>
 
-      <div class="section-label">ð¨âð« Trener i miejsce</div>
+      <div class="section-label">👨‍🏫 Trener i miejsce</div>
       <div class="grid2">
         <div class="form-group">
           <label>Trener</label>
           <select id="bulkTrainer">
             <option value="">-- Wybierz trenera --</option>
             <option value="Tomasz Pawliczak">Tomasz Pawliczak</option>
-            <option value="RadosÅaw Salwa">RadosÅaw Salwa</option>
+            <option value="Radosław Salwa">Radosław Salwa</option>
           </select>
         </div>
         <div class="form-group">
           <label>Miejsce treningu</label>
           <select id="bulkLocation">
             <option value="">-- Wybierz miejsce --</option>
-            <option value="Orlik SP11">Orlik SP11 â ul. Spawaczy, Zielona GÃ³ra</option>
-            <option value="Orlik ZE 10">Orlik ZE 10 â ul. Elektronowa 6E, Zielona GÃ³ra</option>
-            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska â ul. Sulechowska 37</option>
+            <option value="Orlik SP11">Orlik SP11 – ul. Spawaczy, Zielona Góra</option>
+            <option value="Orlik ZE 10">Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra</option>
+            <option value="Kompleks Sportowy Sulechowska">Kompleks Sportowy Sulechowska – ul. Sulechowska 37</option>
           </select>
         </div>
       </div>
 
-      <div class="section-label">ð Dni i godziny zajÄÄ</div>
+      <div class="section-label">📆 Dni i godziny zajęć</div>
       <div id="bulkSlotRows"></div>
       <button class="btn btn-gray" style="font-size:.8rem;margin-top:.5rem" onclick="addBulkRow()">+ Dodaj wiersz</button>
 
-      <button class="btn btn-green" style="margin-top:.8rem" onclick="submitBulk()">ðï¸ Generuj terminy</button>
+      <button class="btn btn-green" style="margin-top:.8rem" onclick="submitBulk()">🗓️ Generuj terminy</button>
     </div>
 
-    <!-- ââ Lista rezerwacji ââ -->
+    <!-- ── Lista rezerwacji ── -->
     <div class="tab-content" id="tabBookings">
       <div style="display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-blue" style="font-size:.8rem" onclick="loadAdminBookings()">ð OdÅwieÅ¼</button>
-        <button id="btnFuture" class="tab-btn active" style="font-size:.8rem" onclick="filterBookings('future')">â© PrzyszÅe</button>
-        <button id="btnPast"   class="tab-btn"        style="font-size:.8rem" onclick="filterBookings('past')">âª PrzeszÅe</button>
+        <button class="btn btn-blue" style="font-size:.8rem" onclick="loadAdminBookings()">🔄 Odśwież</button>
+        <button id="btnFuture" class="tab-btn active" style="font-size:.8rem" onclick="filterBookings('future')">⏩ Przyszłe</button>
+        <button id="btnPast"   class="tab-btn"        style="font-size:.8rem" onclick="filterBookings('past')">⏪ Przeszłe</button>
       </div>
-      <div id="adminBookingsList"><em style="color:var(--muted)">Åadowanieâ¦</em></div>
+      <div id="adminBookingsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
     <div class="tab-content" id="tabStats">
-      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminStats()">ð OdÅwieÅ¼</button>
-      <div id="adminStatsList"><em style="color:var(--muted)">Åadowanieâ¦</em></div>
+      <button class="btn btn-blue" style="margin-bottom:.8rem;font-size:.8rem" onclick="loadAdminStats()">🔄 Odśwież</button>
+      <div id="adminStatsList"><em style="color:var(--muted)">Ładowanie…</em></div>
     </div>
 
     <div class="tab-content" id="tabPlan">
       <div class="plan-layout">
-        <div class="plan-cal" id="planCalendar"><em style="color:var(--muted)">Åadowanieâ¦</em></div>
-        <div class="plan-detail" id="planDetail"><div class="plan-empty">Kliknij dzieÅ, aby zobaczyÄ plan.</div></div>
+        <div class="plan-cal" id="planCalendar"><em style="color:var(--muted)">Ładowanie…</em></div>
+        <div class="plan-detail" id="planDetail"><div class="plan-empty">Kliknij dzień, aby zobaczyć plan.</div></div>
       </div>
     </div>
 
@@ -644,30 +644,30 @@
   </div>
 </div>
 
-<!-- ââ Toast ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Toast ════════════════════════════════════════════════════════════ -->
 <div id="toast"></div>
 
-<!-- ââ Script ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- ══ Script ══════════════════════════════════════════════════════════ -->
 <script>
-  // ââ Stan ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Stan ──────────────────────────────────────────────────────────────
   let calendar;
   let selectedSlotId = null;
   let adminPassword  = null;
 
-  const DAY_NAMES = ['', 'Pon', 'Wt', 'År', 'Czw', 'Pt', 'Sob', 'Nd'];
+  const DAY_NAMES = ['', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Nd'];
 
-  // ââ Lokalizacje z Google Maps âââââââââââââââââââââââââââââââââââââââââ
+  // ── Lokalizacje z Google Maps ─────────────────────────────────────────
   const LOCATIONS = {
     'Orlik SP11': {
-      label: 'Orlik SP11 â ul. Spawaczy, Zielona GÃ³ra',
+      label: 'Orlik SP11 – ul. Spawaczy, Zielona Góra',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Orlik+SP11+ul.+Spawaczy+Zielona+G%C3%B3ra',
     },
     'Orlik ZE 10': {
-      label: 'Orlik ZE 10 â ul. Elektronowa 6E, Zielona GÃ³ra',
+      label: 'Orlik ZE 10 – ul. Elektronowa 6E, Zielona Góra',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Elektronowa+6E+Zielona+G%C3%B3ra',
     },
     'Kompleks Sportowy Sulechowska': {
-      label: 'Kompleks Sportowy Sulechowska â ul. Sulechowska 37',
+      label: 'Kompleks Sportowy Sulechowska – ul. Sulechowska 37',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=ul.+Sulechowska+37+Zielona+G%C3%B3ra',
     },
   };
@@ -676,9 +676,9 @@
     if (!loc) return '';
     const info = LOCATIONS[loc];
     if (info) {
-      return `<a class="maps-link" href="${info.mapsUrl}" target="_blank" rel="noopener">ð ${info.label}</a>`;
+      return `<a class="maps-link" href="${info.mapsUrl}" target="_blank" rel="noopener">📍 ${info.label}</a>`;
     }
-    return `ð ${loc}`;
+    return `📍 ${loc}`;
   }
 
   function locationText(loc) {
@@ -687,20 +687,20 @@
     return info ? info.label : loc;
   }
 
-  // ââ Etykieta typu wydarzenia ââââââââââââââââââââââââââââââââââââââââââ
+  // ── Etykieta typu wydarzenia ──────────────────────────────────────────
   const EVENT_TYPE_LABELS = {
-    'trening indywidualny': 'â½ Trening indywidualny',
-    'trening pozycyjny': 'â½ Trening pozycyjny',
-    'trening': 'â½ Trening indywidualny',   // backward compat
-    'analiza indywidualna': 'ð¥ Analiza indywidualna',
-    'analiza druÅ¼ynowa': 'ð Analiza druÅ¼ynowa',
+    'trening indywidualny': '⚽ Trening indywidualny',
+    'trening pozycyjny': '⚽ Trening pozycyjny',
+    'trening': '⚽ Trening indywidualny',   // backward compat
+    'analiza indywidualna': '🎥 Analiza indywidualna',
+    'analiza drużynowa': '📊 Analiza drużynowa',
   };
 
   function eventTypeLabel(t) {
     return EVENT_TYPE_LABELS[t] || (t ? t : '');
   }
 
-  // ââ Toast âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Toast ─────────────────────────────────────────────────────────────
   function toast(msg, type = 'ok') {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -708,7 +708,7 @@
     setTimeout(() => { el.className = ''; }, 4500);
   }
 
-  // ââ Modals ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Modals ────────────────────────────────────────────────────────────
   function openModal(id)  { document.getElementById(id).classList.add('open');    }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -718,7 +718,7 @@
     });
   });
 
-  // ââ Tabs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Tabs ──────────────────────────────────────────────────────────────
   let _activeAdminTab = 'tabSlots';
   function showTab(id) {
     _activeAdminTab = id;
@@ -732,13 +732,13 @@
     if (id === 'tabPlan')     loadAdminPlan();
   }
 
-  // OdÅwieÅ¼enie kalendarza + listy slotÃ³w (tylko gdy aktywna zakÅadka)
+  // Odświeżenie kalendarza + listy slotów (tylko gdy aktywna zakładka)
   function refreshCalendar() {
     calendar.refetchEvents();
     if (_activeAdminTab === 'tabSlots') loadAdminSlots();
   }
 
-  // ââ Formatowanie daty âââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Formatowanie daty ─────────────────────────────────────────────────
   function fmt(iso) {
     return new Date(iso).toLocaleString('pl-PL', {
       weekday: 'long', day: 'numeric', month: 'long',
@@ -746,7 +746,7 @@
     });
   }
 
-  // ââ Rezerwacja ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Rezerwacja ────────────────────────────────────────────────────────
   function openBookModal(slotId, start, end, props = {}) {
     selectedSlotId = slotId;
     const endTime = new Date(end).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -754,11 +754,11 @@
     const maxParticipants = props.maxParticipants  ?? 4;
     const isPartial = typeof spotsLeft === 'number' && spotsLeft < maxParticipants && spotsLeft > 0;
 
-    let info = `ð <strong>${fmt(start)}</strong> â ${endTime}`;
-    if (props.eventType) info += `<br>ð·ï¸ <strong>${eventTypeLabel(props.eventType)}</strong>`;
-    if (props.trainer)   info += `<br>ð¨âð« Trener: <strong>${props.trainer}</strong>`;
+    let info = `📅 <strong>${fmt(start)}</strong> – ${endTime}`;
+    if (props.eventType) info += `<br>🏷️ <strong>${eventTypeLabel(props.eventType)}</strong>`;
+    if (props.trainer)   info += `<br>👨‍🏫 Trener: <strong>${props.trainer}</strong>`;
     if (props.location)  info += `<br>${locationHtml(props.location)}`;
-    info += `<br>ð¥ Wolnych miejsc: <strong>${spotsLeft}/${maxParticipants}</strong>`;
+    info += `<br>👥 Wolnych miejsc: <strong>${spotsLeft}/${maxParticipants}</strong>`;
 
     const infoEl = document.getElementById('slotInfo');
     infoEl.innerHTML = info;
@@ -784,7 +784,7 @@
     const pierwsyzTrening = document.getElementById('optPierwszyTrening').checked;
     const promocja        = document.getElementById('optPromocja').checked;
 
-    if (!playerName || !phone) { toast('WypeÅnij imiÄ i telefon!', 'error'); return; }
+    if (!playerName || !phone) { toast('Wypełnij imię i telefon!', 'error'); return; }
 
     const extraOpts = [pierwsyzTrening && 'Pierwszy trening', promocja && 'Promocja'].filter(Boolean);
     const fullNotes = [notes, ...extraOpts].filter(Boolean).join(' | ');
@@ -796,16 +796,16 @@
         body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes: fullNotes }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'BÅÄd rezerwacji');
+      if (!r.ok) throw new Error(data.error || 'BŁąd rezerwacji');
       closeModal('bookModal');
-      toast(`ð ${data.message}`);
+      toast(`🎉 ${data.message}`);
       calendar.refetchEvents();
     } catch (e) {
       toast(e.message, 'error');
     }
   }
 
-  // ââ Admin â logowanie âââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Admin – logowanie ─────────────────────────────────────────────────
   function openAdminLogin() { openModal('loginModal'); document.getElementById('adminPwd').value = ''; }
 
   async function loginAdmin() {
@@ -818,18 +818,18 @@
       loadAdminSlots();
       openModal('adminPanel');
     } else {
-      toast('BÅÄdne hasÅo!', 'error');
+      toast('Błędne hasło!', 'error');
     }
   }
 
-  // ââ Admin â sloty âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Admin – sloty ─────────────────────────────────────────────────────
   async function loadAdminSlots() {
     if (!adminPassword) return;
     const r     = await fetch('/api/slots');
     const slots = await r.json();
     const el    = document.getElementById('adminSlotsList');
 
-    if (!slots.length) { el.innerHTML = '<em style="color:var(--muted)">Brak terminÃ³w.</em>'; return; }
+    if (!slots.length) { el.innerHTML = '<em style="color:var(--muted)">Brak terminów.</em>'; return; }
 
     slots.sort((a, b) => new Date(a.start) - new Date(b.start));
 
@@ -841,9 +841,9 @@
       const badgeClass = isFull ? 'badge-booked' : (isPartial ? 'badge-partial' : 'badge-free');
       const metaParts = [];
       if (s.eventType) metaParts.push(eventTypeLabel(s.eventType));
-      if (s.trainer)   metaParts.push(`ð¨âð« ${s.trainer}`);
+      if (s.trainer)   metaParts.push(`👨‍🏫 ${s.trainer}`);
       if (s.location)  metaParts.push(locationHtml(s.location));
-      const meta = metaParts.join(' &nbsp;Â·&nbsp; ');
+      const meta = metaParts.join(' &nbsp;·&nbsp; ');
 
       return `
         <div class="slot-row">
@@ -853,9 +853,9 @@
           </div>
           <span class="badge ${badgeClass}">${s.bookingsCount}/${s.maxParticipants} miejsc</span>
           <button class="btn btn-blue" style="font-size:.75rem;padding:.3rem .7rem"
-            onclick="openEditModal('${s.id}')">âï¸</button>
+            onclick="openEditModal('${s.id}')">✏️</button>
           <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .7rem"
-            onclick="deleteSlot('${s.id}')">ð</button>
+            onclick="deleteSlot('${s.id}')">🗑</button>
         </div>
       `;
     }).join('');
@@ -871,7 +871,7 @@
     const location        = document.getElementById('addLocation').value;
     const maxParticipants = parseInt(document.getElementById('addMaxParticipants').value) || 4;
 
-    if (!start || !end) { toast('Podaj datÄ i godzinÄ!', 'error'); return; }
+    if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
 
     const r = await fetch('/api/slots', {
       method: 'POST',
@@ -886,26 +886,26 @@
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
-    toast(`â Dodano ${d.slots.length} termin(y)`);
+    toast(`✅ Dodano ${d.slots.length} termin(y)`);
     refreshCalendar();
   }
 
   async function deleteSlot(id) {
-    if (!confirm('UsunÄÄ termin? Wszystkie powiÄzane rezerwacje zostanÄ anulowane.')) return;
+    if (!confirm('Usunąć termin? Wszystkie powiązane rezerwacje zostaną anulowane.')) return;
     const r = await fetch(`/api/slots/${id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ adminPassword }),
     });
     if (r.ok) {
-      toast('Termin usuniÄty');
+      toast('Termin usunięty');
       const ev = calendar.getEventById(id); if (ev) ev.remove();
       if (_activeAdminTab === 'tabSlots') loadAdminSlots();
     }
     else { const d = await r.json(); toast(d.error, 'error'); }
   }
 
-  // ââ Admin â edycja slotu ââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Admin – edycja slotu ──────────────────────────────────────────────
   let _editSlotId = null;
 
   function openEditModal(id) {
@@ -938,7 +938,7 @@
     const location        = document.getElementById('editLocation').value;
     const maxParticipants = parseInt(document.getElementById('editMaxParticipants').value) || 4;
 
-    if (!start || !end) { toast('Podaj datÄ i godzinÄ!', 'error'); return; }
+    if (!start || !end) { toast('Podaj datę i godzinę!', 'error'); return; }
 
     try {
       const r = await fetch(`/api/slots/${_editSlotId}`, {
@@ -952,16 +952,16 @@
         }),
       });
       const d = await r.json();
-      if (!r.ok) throw new Error(d.error || 'BÅÄd edycji');
+      if (!r.ok) throw new Error(d.error || 'Błąd edycji');
       closeModal('editSlotModal');
-      toast('â Termin zaktualizowany');
+      toast('✅ Termin zaktualizowany');
       refreshCalendar();
     } catch (e) {
       toast(e.message, 'error');
     }
   }
 
-  // ââ Admin â harmonogram âââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Admin – harmonogram ───────────────────────────────────────────────
   function initBulkRows() {
     document.getElementById('bulkSlotRows').innerHTML = '';
     addBulkRow(1, '09:00');
@@ -977,7 +977,7 @@
         ${[1,2,3,4,5,6,7].map(d => `<option value="${d}" ${d===day?'selected':''}>${DAY_NAMES[d]}</option>`).join('')}
       </select>
       <input type="time" value="${time}" style="background:rgba(255,255,255,.07);border:1px solid #3a3a5a;border-radius:6px;padding:.4rem;color:var(--text);flex:1"/>
-      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--red);font-size:1.1rem;cursor:pointer">â</button>
+      <button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--red);font-size:1.1rem;cursor:pointer">✕</button>
     `;
     document.getElementById('bulkSlotRows').appendChild(div);
   }
@@ -1007,15 +1007,15 @@
     });
     const d = await r.json();
     if (!r.ok) { toast(d.error, 'error'); return; }
-    toast(`ðï¸ Wygenerowano ${d.count} terminÃ³w!`);
+    toast(`🗓️ Wygenerowano ${d.count} terminów!`);
     refreshCalendar();
   }
 
-  // ââ Admin â rezerwacje ââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Admin – rezerwacje ────────────────────────────────────────────────
   let _allBookings = [];
   let _bookingsFilter = 'future';
 
-  // ââ Kalkulator cen ââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Kalkulator cen ──────────────────────────────────────────────────
   const PRICE_TABLE = {1:150, 2:125, 3:100, 4:80};
   function pricePerPerson(playerCount) {
     return PRICE_TABLE[Math.min(Math.max(playerCount,1),4)];
@@ -1039,15 +1039,15 @@
   function bookingCardHtml(b) {
     return `
       <div class="booking-card">
-        <strong>â½ ${b.playerName}</strong>
-        <div class="bc-phone">ð ${b.phone}</div>
-        <div class="bc-date">ð ${b.slot ? fmt(b.slot.start) : 'â'}</div>
-        ${b.slot?.eventType ? `<div class="bc-meta">ð·ï¸ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
-        ${b.slot?.trainer   ? `<div class="bc-meta">ð¨âð« ${b.slot.trainer}</div>`                 : ''}
+        <strong>⚽ ${b.playerName}</strong>
+        <div class="bc-phone">📞 ${b.phone}</div>
+        <div class="bc-date">📅 ${b.slot ? fmt(b.slot.start) : '–'}</div>
+        ${b.slot?.eventType ? `<div class="bc-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
+        ${b.slot?.trainer   ? `<div class="bc-meta">👨‍🏫 ${b.slot.trainer}</div>`                 : ''}
         ${b.slot?.location  ? `<div class="bc-meta">${locationHtml(b.slot.location)}</div>`      : ''}
-        ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">ð¬ ${b.notes}</div>` : ''}
+        ${b.notes ? `<div style="color:var(--muted);font-size:.8rem;margin-top:.3rem">💬 ${b.notes}</div>` : ''}
         <button class="btn btn-red" style="font-size:.75rem;padding:.3rem .8rem;margin-top:.5rem"
-          onclick="cancelBooking('${b.id}','${b.playerName}')">â Anuluj rezerwacjÄ</button>
+          onclick="cancelBooking('${b.id}','${b.playerName}')">❌ Anuluj rezerwację</button>
       </div>`;
   }
 
@@ -1065,7 +1065,7 @@
   async function loadAdminStats() {
     if (!adminPassword) return;
     const el = document.getElementById('adminStatsList');
-    el.innerHTML = '<em style="color:var(--muted)">Åadowanieâ¦</em>';
+    el.innerHTML = '<em style="color:var(--muted)">Ładowanie…</em>';
     const r = await fetch(`/api/bookings?adminPassword=${encodeURIComponent(adminPassword)}`);
     const allB = await r.json();
     allB.sort((a, b) => new Date(a.slot?.start || 0) - new Date(b.slot?.start || 0));
@@ -1077,12 +1077,12 @@
       slotGroups[key] = (slotGroups[key] || 0) + 1;
     });
 
-    const PLAYERS = ['RadosÅaw Salwa', 'Tomasz Pawliczak'];
+    const PLAYERS = ['Radosław Salwa', 'Tomasz Pawliczak'];
     el.innerHTML = PLAYERS.map(name => {
       const pb = allB.filter(b => b.playerName && b.playerName.trim().toLowerCase() === name.trim().toLowerCase());
       if (!pb.length) return `
         <div style="margin-bottom:1.2rem">
-          <h3 style="margin:0 0 .4rem;font-size:1rem;color:var(--accent)">ð¤ ${name}</h3>
+          <h3 style="margin:0 0 .4rem;font-size:1rem;color:var(--accent)">👤 ${name}</h3>
           <em style="color:var(--muted);font-size:.85rem">Brak rezerwacji.</em>
         </div>`;
 
@@ -1094,7 +1094,7 @@
       const rows = pb.map(b => {
         const isFut   = new Date(b.slot?.start||0) >= now;
         const isFirst = b.slot?.start === firstStart;
-        const isPromo = b.notes && /promo|rabat|zniÅ¼ka|zniÅ¼|gratis/i.test(b.notes);
+        const isPromo = b.notes && /promo|rabat|zniżka|zniż|gratis/i.test(b.notes);
         const playersInSlot = slotGroups[b.slot?.start] || 1;
         let price = pricePerPerson(playersInSlot);
         let priceLabel = '';
@@ -1102,62 +1102,62 @@
           priceLabel = '<span style="color:#4caf50;font-size:.75rem">DARMOWY</span>';
           freeCount++;
         } else if (isPromo) {
-          priceLabel = '<span style="color:#ff9800;font-size:.75rem">PROMO 0 zÅ</span>';
+          priceLabel = '<span style="color:#ff9800;font-size:.75rem">PROMO 0 zł</span>';
           promoCount++;
         } else {
-          priceLabel = `<span style="font-size:.8rem">${price} zÅ</span>`;
+          priceLabel = `<span style="font-size:.8rem">${price} zł</span>`;
           if (!isFut) totalPrice += price;
         }
         return `
         <div class="booking-card" style="padding:.5rem .7rem;margin-bottom:.4rem">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="bc-date" style="font-size:.85rem">ð ${b.slot ? fmt(b.slot.start) : 'â'}
-              ${isFut ? '<span style="color:#4caf50;font-size:.72rem">(przyszÅe)</span>'
-                      : '<span style="color:var(--muted);font-size:.72rem">(przeszÅe)</span>'}
+            <div class="bc-date" style="font-size:.85rem">📅 ${b.slot ? fmt(b.slot.start) : '–'}
+              ${isFut ? '<span style="color:#4caf50;font-size:.72rem">(przyszłe)</span>'
+                      : '<span style="color:var(--muted);font-size:.72rem">(przeszłe)</span>'}
             </div>
             <div>${priceLabel}${playersInSlot > 1 ? ` <span style="color:var(--muted);font-size:.72rem">(${playersInSlot} os.)</span>` : ''}</div>
           </div>
-          ${b.slot?.eventType ? `<div class="bc-meta" style="font-size:.78rem">ð·ï¸ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
-          ${b.slot?.trainer   ? `<div class="bc-meta" style="font-size:.78rem">ð¨âð« ${b.slot.trainer}</div>` : ''}
+          ${b.slot?.eventType ? `<div class="bc-meta" style="font-size:.78rem">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : ''}
+          ${b.slot?.trainer   ? `<div class="bc-meta" style="font-size:.78rem">👨‍🏫 ${b.slot.trainer}</div>` : ''}
           ${b.slot?.location  ? `<div class="bc-meta" style="font-size:.78rem">${locationHtml(b.slot.location)}</div>` : ''}
         </div>`;
       }).join('');
 
       const futurePrice = future
-        .filter(b => b.slot?.start !== firstStart && !(b.notes && /promo|rabat|zniÅ¼ka|zniÅ¼|gratis/i.test(b.notes)))
+        .filter(b => b.slot?.start !== firstStart && !(b.notes && /promo|rabat|zniżka|zniż|gratis/i.test(b.notes)))
         .reduce((s,b) => s + pricePerPerson(slotGroups[b.slot?.start]||1), 0);
 
       return `
         <div style="margin-bottom:1.2rem">
-          <h3 style="margin:0 0 .5rem;font-size:1rem;color:var(--accent)">ð¤ ${name}</h3>
+          <h3 style="margin:0 0 .5rem;font-size:1rem;color:var(--accent)">👤 ${name}</h3>
           <div style="display:flex;gap:.8rem;margin-bottom:.5rem;font-size:.82rem;flex-wrap:wrap">
-            <span>ð¢ ÅÄcznie: <strong>${pb.length}</strong></span>
-            <span>â PrzeszÅe: <strong>${past.length}</strong></span>
-            <span>â© PrzyszÅe: <strong>${future.length}</strong></span>
+            <span>🔢 Łącznie: <strong>${pb.length}</strong></span>
+            <span>✅ Przeszłe: <strong>${past.length}</strong></span>
+            <span>⏩ Przyszłe: <strong>${future.length}</strong></span>
           </div>
           <div style="display:flex;gap:.8rem;margin-bottom:.6rem;font-size:.82rem;flex-wrap:wrap;padding:.4rem .6rem;background:rgba(255,255,255,.04);border-radius:.4rem">
-            <span>ð° ZapÅacono: <strong style="color:#4caf50">${totalPrice} zÅ</strong></span>
-            <span>â© Do zapÅaty: <strong style="color:#64b5f6">${futurePrice} zÅ</strong></span>
-            ${freeCount  ? `<span>ð Darmowe: <strong>${freeCount}</strong></span>` : ''}
-            ${promoCount ? `<span>ð·ï¸ Promo: <strong>${promoCount}</strong></span>` : ''}
+            <span>💰 Zapłacono: <strong style="color:#4caf50">${totalPrice} zł</strong></span>
+            <span>⏩ Do zapłaty: <strong style="color:#64b5f6">${futurePrice} zł</strong></span>
+            ${freeCount  ? `<span>🎁 Darmowe: <strong>${freeCount}</strong></span>` : ''}
+            ${promoCount ? `<span>🏷️ Promo: <strong>${promoCount}</strong></span>` : ''}
           </div>
           ${rows}
         </div>`;
     }).join('<hr style="border-color:#2a2a4a;margin:.8rem 0">');
   }
 
-  // ââ Plan miesiÄczny ââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Plan miesięczny ──────────────────────────────────────────────────
   let _planBookings = null;
   let _planYear  = new Date().getFullYear();
   let _planMonth = new Date().getMonth();
   let _planSelDate = null;
 
-  const PL_MONTHS     = ['styczeÅ','luty','marzec','kwiecieÅ','maj','czerwiec','lipiec','sierpieÅ','wrzesieÅ','paÅºdziernik','listopad','grudzieÅ'].map(s=>s.slice(1));
-  const PL_MONTHS_CAP = ['StyczeÅ','Luty','Marzec','KwiecieÅ','Maj','Czerwiec','Lipiec','SierpieÅ','WrzesieÅ','PaÅºdziernik','Listopad','GrudzieÅ'];
-  const PL_MONTHS_GEN = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','wrzeÅnia','paÅºdziernika','listopada','grudnia'];
-  const PL_DAYS_LONG  = ['Niedziela','PoniedziaÅek','Wtorek','Åroda','Czwartek','PiÄtek','Sobota'];
-  const PL_DOW        = ['Pon','Wt','År','Czw','Pt','Sob','Nd'];
-  const PLAN_PLAYERS  = ['RadosÅaw Salwa','Tomasz Pawliczak'];
+  const PL_MONTHS     = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'].map(s=>s.slice(1));
+  const PL_MONTHS_CAP = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+  const PL_MONTHS_GEN = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+  const PL_DAYS_LONG  = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+  const PL_DOW        = ['Pon','Wt','Śr','Czw','Pt','Sob','Nd'];
+  const PLAN_PLAYERS  = ['Radosław Salwa','Tomasz Pawliczak'];
 
   async function loadAdminPlan() {
     if (!adminPassword) return;
@@ -1193,9 +1193,9 @@
     const daysInMo = new Date(yr, mo+1, 0).getDate();
     const daysInPrev = new Date(yr, mo, 0).getDate();
     let html = `<div class="plan-cal-header">`
-      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(-1)">â¹</button>`
+      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(-1)">‹</button>`
       + `<span style="font-size:.88rem;font-weight:700">${PL_MONTHS_CAP[mo]} ${yr}</span>`
-      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(1)">âº</button>`
+      + `<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="planChMo(1)">›</button>`
       + `</div><div class="plan-cal-grid">`;
     PL_DOW.forEach(d => { html += `<div class="plan-dow">${d}</div>`; });
     for (let i = 0; i < firstDow; i++) html += `<div class="plan-day other-month">${daysInPrev-firstDow+1+i}</div>`;
@@ -1243,12 +1243,12 @@
         pb.forEach(b => {
           const s = b.slot?.start ? new Date(b.slot.start) : null;
           const e = b.slot?.end   ? new Date(b.slot.end)   : null;
-          const ts = s ? s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : 'â';
-          const te = e ? ' â '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : '';
+          const ts = s ? s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : '–';
+          const te = e ? ' – '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}) : '';
           html += `<div class="plan-slot">`
             + `<div class="plan-slot-time">${ts}${te}</div>`
-            + (b.slot?.eventType ? `<div class="plan-slot-meta">ð·ï¸ ${eventTypeLabel(b.slot.eventType)}</div>` : '')
-            + (b.slot?.trainer   ? `<div class="plan-slot-meta">ð¨âð« ${b.slot.trainer}</div>` : '')
+            + (b.slot?.eventType ? `<div class="plan-slot-meta">🏷️ ${eventTypeLabel(b.slot.eventType)}</div>` : '')
+            + (b.slot?.trainer   ? `<div class="plan-slot-meta">👨‍🏫 ${b.slot.trainer}</div>` : '')
             + (b.slot?.location  ? `<div class="plan-slot-meta">${locationHtml(b.slot.location)}</div>` : '')
             + `</div>`;
         });
@@ -1260,7 +1260,7 @@
   }
 
   async function cancelBooking(id, name) {
-    if (!confirm(`AnulowaÄ rezerwacjÄ zawodnika ${name}?`)) return;
+    if (!confirm(`Anulować rezerwację zawodnika ${name}?`)) return;
     const r = await fetch(`/api/bookings/${id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -1270,8 +1270,8 @@
     else { const d = await r.json(); toast(d.error, 'error'); }
   }
 
-  // ââ Init ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // ââ Plan gÅÃ³wny (publiczny) ââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── Init ──────────────────────────────────────────────────────────────
+  // ── Plan główny (publiczny) ────────────────────────────────────────────────
   let _mPlan=null,_mYear=new Date().getFullYear(),_mMonth=new Date().getMonth(),_mSel=null;
 
   async function loadMainPlan(){
@@ -1293,9 +1293,9 @@
     const daysInMo=new Date(yr,mo+1,0).getDate();
     const daysInPrev=new Date(yr,mo,0).getDate();
     let html=`<div class="plan-cal-header">`
-      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(-1)">â¹</button>`
+      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(-1)">‹</button>`
       +`<span style="font-size:.9rem;font-weight:700">${PL_MONTHS_CAP[mo]} ${yr}</span>`
-      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(1)">âº</button>`
+      +`<button class="btn btn-gray" style="padding:.2rem .55rem;font-size:.9rem" onclick="mPlanChMo(1)">›</button>`
       +`</div><div class="plan-cal-grid">`;
     PL_DOW.forEach(d=>{html+=`<div class="plan-dow">${d}</div>`;});
     for(let i=0;i<firstDow;i++)html+=`<div class="plan-day other-month">${daysInPrev-firstDow+1+i}</div>`;
@@ -1341,12 +1341,12 @@
         pb.forEach(b=>{
           const s=b.start?new Date(b.start):null;
           const e=b.end?new Date(b.end):null;
-          const ts=s?s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'â';
-          const te=e?' â '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
+          const ts=s?s.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'–';
+          const te=e?' – '+e.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
           html+=`<div class="plan-slot">`
             +`<div class="plan-slot-time">${ts}${te}</div>`
-            +(b.eventType?`<div class="plan-slot-meta">ð·ï¸ ${eventTypeLabel(b.eventType)}</div>`:'')
-            +(b.trainer?`<div class="plan-slot-meta">ð¨âð« ${b.trainer}</div>`:'')
+            +(b.eventType?`<div class="plan-slot-meta">🏷️ ${eventTypeLabel(b.eventType)}</div>`:'')
+            +(b.trainer?`<div class="plan-slot-meta">👨‍🏫 ${b.trainer}</div>`:'')
             +(b.location?`<div class="plan-slot-meta">${locationHtml(b.location)}</div>`:'')
             +`<button class="plan-book-btn" onclick="openBookModal('${b.id}','${b.start}','${b.end}',{spotsLeft:${b.spotsLeft},maxParticipants:${b.maxParticipants}})">REZERWUJ</button>`
             +`</div>`;
