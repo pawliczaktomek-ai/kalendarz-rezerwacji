@@ -279,7 +279,16 @@
       .fc-col-header-cell,
       .fc-timegrid-col { min-width: 40px; }
       .fc-timegrid-axis { width: 28px !important; }
-    }
+    
+      /* ── Plan calendar – mobile full-width ── */
+      .plan-layout    { flex-direction: column; gap: .6rem; }
+      .plan-cal       { flex: 1 1 100%; width: 100%; max-width: 100%; }
+      .plan-cal table { width: 100%; table-layout: fixed; }
+      .plan-cal-grid td,
+      .plan-cal-grid th { width: calc(100% / 7); }
+      #mainPlanDetail { width: 100%; }
+      .plan-player-col { min-width: 0; width: 100%; }
+}
 
     /* ── Plan miesięczny ────────────────────────────────────────────── */
     .plan-layout { display: flex; gap: 1.2rem; align-items: flex-start; flex-wrap: wrap; }
@@ -300,7 +309,10 @@
     .plan-detail { flex: 1; min-width: 180px; }
     .plan-detail-hdr { font-size: .9rem; font-weight: 700; margin-bottom: .7rem; text-transform: capitalize; }
     .plan-players { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
-    @media (max-width: 480px) { .plan-players { grid-template-columns: 1fr; } }
+    @media (max-width: 480px) { .plan-players { grid-template-columns: 1fr; } 
+      .plan-cal table { font-size: .82rem; }
+      .plan-cal-grid td { padding: 5px 2px; font-size: .82rem; }
+}
     .plan-player-col h4 { font-size: .72rem; font-weight: 800; letter-spacing: .07em; color: var(--accent); margin: 0 0 .4rem; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: .3rem; }
     .plan-slot { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: .4rem; padding: .4rem .55rem; margin-bottom: .3rem; }
     .plan-book-btn { display:block; width:100%; margin-top:8px; padding:8px 0; background:var(--blue); color:#fff; border:none; border-radius:6px; font-size:0.9rem; font-weight:700; letter-spacing:.06em; cursor:pointer; transition:background .2s; }
