@@ -787,6 +787,7 @@
     const playerName      = document.getElementById('playerName').value.trim();
     const phone           = document.getElementById('playerPhone').value.trim();
     const notes           = document.getElementById('playerNotes').value.trim();
+    const playerYear      = document.getElementById('playerYear').value.trim();
     const pierwsyzTrening = document.getElementById('optPierwszyTrening').checked;
     const promocja        = document.getElementById('optPromocja').checked;
 
@@ -799,7 +800,7 @@
       const r = await fetch('/api/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes: fullNotes }),
+        body: JSON.stringify({ slotId: selectedSlotId, playerName, phone, notes: fullNotes, playerYear: playerYear || null }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'BŁąd rezerwacji');
