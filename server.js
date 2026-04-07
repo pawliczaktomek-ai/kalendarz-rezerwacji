@@ -484,7 +484,7 @@ app.post('/api/slots/bulk', requireAdmin, async (req, res) => {
 
 // Dokonaj rezerwacji (publiczne)
 app.post('/api/book', async (req, res) => {
-  const { slotId, playerName, phone, notes } = req.body;
+  const { slotId, playerName, phone, notes, playerYear } = req.body;
   if (!slotId || !playerName || !phone) {
     return res.status(400).json({ error: 'Brakuje slotId, playerName lub phone' });
   }
@@ -505,6 +505,7 @@ app.post('/api/book', async (req, res) => {
     id: uuidv4(),
     slotId,
     playerName,
+    playerYear: playerYear || null,
     phone,
     notes: notes || '',
     createdAt: new Date().toISOString(),
