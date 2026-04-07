@@ -489,6 +489,7 @@ app.post('/api/book', async (req, res) => {
     return res.status(400).json({ error: 'Brakuje slotId, playerName lub phone' });
   }
 
+  try {
   const data = await loadData();
   const slot = data.slots.find(s => s.id === slotId);
   if (!slot) return res.status(404).json({ error: 'Termin nie istnieje' });
@@ -566,6 +567,10 @@ app.post('/api/book', async (req, res) => {
     spotsLeft,
     message: `Rezerwacja potwierdzona! SMS wysłany na ${phone}. Wolnych miejsc: ${spotsLeft}/${maxParticipants}.`,
   });
+  } catch (e) {
+    console.error('[book] nieoczekiwany błąd:', e.message);
+    if (!res.headersSent) res.status(500).json({ error: 'Błąd rezerwacji: ' + e.message });
+  }
 });
 
 // Anuluj rezerwację (admin)
