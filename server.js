@@ -530,7 +530,7 @@ app.post('/api/book', async (req, res) => {
   try {
     await sendSMS(
       phone,
-      `Czesc ${playerName}! ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! - CSPilkarza`
+      `Czesc ${playerName}${playerYear ? ' (rocznik ' + playerYear + ')' : ''}! ${eventLabel} zarezerwowany na ${dateStr}.${trainerInfo}${locationInfo} Do zobaczenia! - CSPilkarza`
     );
   } catch (e) {
     console.error('SMS do zawodnika – błąd:', e.message);
