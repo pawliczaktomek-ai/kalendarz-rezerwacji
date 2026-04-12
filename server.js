@@ -607,6 +607,16 @@ app.delete('/api/bookings/:id', requireAdmin, async (req, res) => {
 });
 
 // Lista rezerwacji (admin)
+app.patch('/api/bookings/:id/note', requireAdmin, async (req, res) => {
+  const data = await loadData();
+  const { trainerNote } = req.body;
+  const booking = data.bookings.find(b => b.id === req.params.id);
+  if (!booking) return res.status(404).json({ error: 'Nie znaleziono rezerwacji' });
+  booking.trainerNote = typeof trainerNote === 'string' ? trainerNote : '';
+  await saveData(data);
+  res.json({ ok: true });
+});
+
 app.get('/api/bookings', requireAdmin, async (req, res) => {
   const data = await loadData();
   const bookings = data.bookings.map(b => {
