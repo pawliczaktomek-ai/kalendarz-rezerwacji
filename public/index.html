@@ -1086,7 +1086,8 @@
 
     const PLAYERS = ['Radosław Salwa', 'Tomasz Pawliczak'];
     el.innerHTML = PLAYERS.map(name => {
-      const pb = allB.filter(b => b.playerName && b.playerName.trim().toLowerCase() === name.trim().toLowerCase());
+      const isCoach = name === 'Tomasz Pawliczak';
+      const pb = allB.filter(b => (b.playerName && b.playerName.trim().toLowerCase() === name.trim().toLowerCase()) || (isCoach && b.slot?.eventType === 'trening indywidualny' && b.slot?.trainer?.trim().toLowerCase() === name.trim().toLowerCase()));
       if (!pb.length) return `
         <div style="margin-bottom:1.2rem">
           <h3 style="margin:0 0 .4rem;font-size:1rem;color:var(--accent)">👤 ${name}</h3>
