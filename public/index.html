@@ -489,6 +489,7 @@
       <button class="tab-btn"        onclick="showTab('tabBookings')">📋 Rezerwacje</button>
       <button class="tab-btn"        onclick="showTab('tabStats')">📊 Statystyki</button>
       <button class="tab-btn"        onclick="showTab('tabPlan')">📅 Plan</button>
+          <button class="tab-btn" onclick="showTab('tabPlayers')">&#128101; Zawodnicy</button>
     </div>
 
     <!-- ── Lista slotów ── -->
@@ -643,6 +644,9 @@
         <div class="plan-detail" id="planDetail"><div class="plan-empty">Kliknij dzień, aby zobaczyć plan.</div></div>
       </div>
     </div>
+      <div class="tab-content" id="tabPlayers">
+        <div id="playersTabContent"><em style="color:var(--muted)">Ładowanie…</em></div>
+      </div>
 
     <div style="margin-top:1.2rem;display:flex;justify-content:flex-end">
       <button class="btn btn-gray" onclick="closeModal('adminPanel');adminPassword=null">Zamknij</button>
@@ -736,6 +740,7 @@
     if (id === 'tabBookings') loadAdminBookings();
     if (id === 'tabStats')    loadAdminStats();
     if (id === 'tabPlan')     loadAdminPlan();
+    if (id === 'tabPlayers') loadPlayersTab();
   }
 
   // Odświeżenie kalendarza + listy slotów (tylko gdy aktywna zakładka)
@@ -1366,7 +1371,96 @@
     el.innerHTML=html;
   }
 
-  loadMainPlan();
+  
+  async function loadPlayersTab() {
+    if (!adminPassword) return;
+    const el = document.getElementById('playersTabContent');
+    el.innerHTML = '<em style="color:var(--muted)">Ładowanie…</em>';
+    const r = await fetch('/api/bookings?adminPassword=' + encodeURIComponent(adminPassword));
+    const allB = await r.json();
+    const playerMap = {};
+    allB.forEach(b => {
+      const name = (b.playerName || '').trim() || '(bez nazwy)';
+      if (!playerMap[name]) playerMap[name] = [];
+      playerMap[name].push(b);
+    });
+    Object.values(playerMap).forEach(bks => bks.sort((a,b) => new Date(a.slot && a.slot.start || 0) - new Date(b.slot && b.slot.start || 0)));
+    const players = Object.keys(playerMap).sort();
+    if (!players.length) { el.innerHTML = '<em style="color:var(--muted)">Brak rezerwacji.</em>'; return; }
+    const dtStr = d => {
+      const dt = new Date(d);
+      if (isNaN(dt)) return '?';
+      return dt.toLocaleDateString('pl-PL',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + dt.toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'});
+    };
+    const now = new Date();
+    el.innerHTML = players.map(name => {
+      const bks = playerMap[name];
+      const past = bks.filter(b => new Date(b.slot && b.slot.start || 0) < now).length;
+      const future = bks.filter(b => new Date(b.slot && b.slot.start || 0) >= now).length;
+      const rows = bks.map(b => {
+        const noteId = 'tnote_' + b.id;
+        const isPast = new Date(b.slot && b.slot.start || 0) < now;
+        const eventLabel = (b.slot && b.slot.eventType) || 'trening';
+        const trainerName = (b.slot && b.slot.trainer) || '';
+        const note = b.trainerNote || '';
+        return `<tr style="background:${isPast ? '#f9f9f9' : '#fffff0'}">
+          <td style="padding:6px 8px;font-size:.85rem;white-space:nowrap">${dtStr(b.slot && b.slot.start)}</td>
+          <td style="padding:6px 8px;font-size:.85rem">${eventLabel}${trainerName ? ' (' + trainerName + ')' : ''}</td>
+          <td style="padding:6px 8px;font-size:.85rem"><span style="background:${isPast?'#ccc':'#90ee90'};padding:2px 6px;border-radius:10px;font-size:.8rem">${isPast?'Odbyty':'Nadchodzący'}</span></td>
+          <td style="padding:6px 8px;min-width:200px">
+            <textarea id="${noteId}" rows="2" style="width:100%;box-sizing:border-box;font-size:.82rem;border:1px solid #ccc;border-radius:4px;padding:4px;resize:vertical">${note.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+            <button onclick="saveTrainerNote('${b.id}','${noteId}',this)" style="margin-top:4px;padding:3px 10px;font-size:.8rem;background:var(--primary,#2563eb);color:#fff;border:none;border-radius:4px;cursor:pointer">Zapisz notatkę</button>
+          </td>
+        </tr>`;
+      }).join('');
+      return `<div style="margin-bottom:1.5rem;border:1px solid #ddd;border-radius:8px;overflow:hidden">
+        <div style="background:var(--primary,#2563eb);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:12px">
+          <strong style="font-size:1rem">${name}</strong>
+          <span style="background:rgba(255,255,255,.25);padding:2px 8px;border-radius:10px;font-size:.82rem">Łącznie: ${bks.length}</span>
+          <span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;font-size:.82rem">Odbyte: ${past}</span>
+          <span style="background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;font-size:.82rem">Nadchodzące: ${future}</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f0f0f0;text-align:left">
+              <th style="padding:6px 8px;font-size:.83rem">Data i godzina</th>
+              <th style="padding:6px 8px;font-size:.83rem">Typ</th>
+              <th style="padding:6px 8px;font-size:.83rem">Status</th>
+              <th style="padding:6px 8px;font-size:.83rem">Notatka trenera</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function saveTrainerNote(bookingId, noteId, btn) {
+    const note = document.getElementById(noteId).value;
+    btn.disabled = true; btn.textContent = '⏳ Zapisuję…';
+    try {
+      const r = await fetch('/api/bookings/' + bookingId + '/note', {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ trainerNote: note, adminPassword: adminPassword })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        btn.textContent = '✅ Zapisano';
+        btn.style.background = '#16a34a';
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Zapisz notatkę'; btn.style.background = ''; }, 2500);
+      } else {
+        btn.textContent = '❌ Błąd';
+        btn.style.background = '#dc2626';
+        setTimeout(() => { btn.disabled = false; btn.textContent = 'Zapisz notatkę'; btn.style.background = ''; }, 2500);
+      }
+    } catch(e) {
+      btn.textContent = '❌ Błąd sieci';
+      setTimeout(() => { btn.disabled = false; btn.textContent = 'Zapisz notatkę'; btn.style.background = ''; }, 2500);
+    }
+  }
+
+loadMainPlan();
 </script>
 </body>
 </html>
