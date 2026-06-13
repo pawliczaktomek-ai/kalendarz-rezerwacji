@@ -476,7 +476,9 @@ for (let w = 0; w < weeks; w++) {
 for (const s of schedule) {
 const start = new Date(monday);
 start.setDate(start.getDate() + w * 7 + (s.day - 1));
-start.setHours(s.hour, s.minute || 0, 0, 0);
+start.setUTCHours(s.hour, s.minute || 0, 0, 0);
+        const _wH = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Warsaw',hour:'2-digit',hour12:false}).format(start));
+        start.setUTCHours(s.hour - ((_wH - s.hour + 24) % 24), s.minute || 0, 0, 0);
 const end = new Date(start);
 end.setMinutes(end.getMinutes() + (s.durationMin || 60));
 const slot = {
@@ -686,6 +688,30 @@ return { id: s.id, playerName: s.trainer, start: s.start, end: s.end, eventType:
 res.json(plan);
 });
 
+
+// ─── Migracja stref czasowych (jednorazowa) ───────────────────────────────────
+async function migrateTimezone() {
+  const data = await loadData();
+  if (data._timezoneMigrated) return;
+  let changed = false;
+  data.slots = (data.slots || []).map(slot => {
+    const d = new Date(slot.start);
+    const utcH = d.getUTCHours();
+    if (utcH === 18 || utcH === 10) {
+      const newStart = new Date(d.getTime() - 2 * 3600000);
+      const newEnd = slot.end ? new Date(new Date(slot.end).getTime() - 2 * 3600000) : null;
+      changed = true;
+      console.log('[tz-fix]', slot.id, slot.start, '->', newStart.toISOString());
+      return { ...slot, start: newStart.toISOString(), ...(newEnd ? {end: newEnd.toISOString()} : {}) };
+    }
+    return slot;
+  });
+  data._timezoneMigrated = true;
+  await saveData(data);
+  if (changed) console.log('[tz-fix] Migracja stref czasowych zakonczona');
+}
+
+migrateTimezone().catch(e => console.error('[tz-fix] blad:', e.message));
 app.listen(PORT, () => {
 console.log(`\nKalendarz rezerwacji dziala na http://localhost:${PORT}`);
 console.log(`Haslo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
