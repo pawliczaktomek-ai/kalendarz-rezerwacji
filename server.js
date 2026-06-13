@@ -732,8 +732,14 @@ async function restoreSlots() {
   console.log('[restore] Odtworzono', data.slots.length, 'slotów treningowych');
 }
 
-restoreSlots().catch(e => console.error('[restore] blad:', e.message));
-migrateTimezone().catch(e => console.error('[tz-fix] blad:', e.message));
+(async () => {
+  try {
+    await migrateTimezone();
+    await restoreSlots();
+  } catch(e) {
+    console.error('[startup] blad:', e.message);
+  }
+})();
 app.listen(PORT, () => {
 console.log(`\nKalendarz rezerwacji dziala na http://localhost:${PORT}`);
 console.log(`Haslo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
