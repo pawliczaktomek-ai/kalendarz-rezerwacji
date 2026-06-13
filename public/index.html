@@ -490,6 +490,7 @@
       <button class="tab-btn"        onclick="showTab('tabStats')">📊 Statystyki</button>
       <button class="tab-btn"        onclick="showTab('tabPlan')">📅 Plan</button>
           <button class="tab-btn" onclick="showTab('tabPlayers')">&#128101; Zawodnicy</button>
+        <button class="tab-btn" onclick="showTab('tabSms')">📱 SMS Log</button>
     </div>
 
     <!-- ── Lista slotów ── -->
@@ -646,6 +647,17 @@
     </div>
       <div class="tab-content" id="tabPlayers">
         <div id="playersTabContent"><em style="color:var(--muted)">Ładowanie…</em></div>
+      </div>
+      <div id="tabSms" class="tab-content" style="display:none">
+        <h3 style="color:var(--accent);margin-bottom:16px">📱 Log powiadomień SMS</h3>
+        <div style="margin-bottom:16px;display:flex;gap:12px;align-items:center">
+          <button onclick="loadSmsLog()" style="background:var(--blue);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px">🔄 Odśwież</button>
+          <button onclick="clearSmsLog()" style="background:var(--red);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px">🗑️ Wyczyść log</button>
+          <span id="smsLogCount" style="color:var(--muted);font-size:13px"></span>
+        </div>
+        <div id="smsLogTable" style="overflow-x:auto">
+          <p style="color:var(--muted)">Kliknij "Odśwież" aby załadować log SMS.</p>
+        </div>
       </div>
 
     <div style="margin-top:1.2rem;display:flex;justify-content:flex-end">
@@ -1461,6 +1473,60 @@
   }
 
 loadMainPlan();
+
+    // ── SMS Log Panel ──────────────────────────────────────────────
+    async function loadSmsLog() {
+      const pwd = document.getElementById('adminPassword')?.value || localStorage.getItem('adminPwd') || '';
+      const table = document.getElementById('smsLogTable');
+      const count = document.getElementById('smsLogCount');
+      if (!table) return;
+      table.innerHTML = '<p style="color:var(--muted)">Ładowanie...</p>';
+      try {
+        const r = await fetch('/api/sms-log?adminPassword=' + encodeURIComponent(pwd));
+        if (r.status === 401) { table.innerHTML = '<p style="color:var(--red)">Błąd autoryzacji — zaloguj się jako admin.</p>'; return; }
+        const logs = await r.json();
+        if (count) count.textContent = 'Łącznie: ' + logs.length + ' wpisów';
+        if (!logs.length) { table.innerHTML = '<p style="color:var(--muted)">Brak wpisów w logu SMS.</p>'; return; }
+        const typeLabel = { zawodnik: '⚽ Zawodnik', trener: '🧑‍🏫 Trener', anulowanie: '❌ Anulowanie', 'zawodnik-błąd': '⚠️ Zawodnik (błąd)', 'trener-błąd': '⚠️ Trener (błąd)', 'anulowanie-błąd': '⚠️ Anulowanie (błąd)' };
+        const statusColor = { wysłany: '#27ae60', testowy: '#e67e22' };
+        table.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+          '<thead><tr style="background:var(--mid);color:var(--text)">' +
+          '<th style="padding:8px;text-align:left">Data/czas</th>' +
+          '<th style="padding:8px;text-align:left">Typ</th>' +
+          '<th style="padding:8px;text-align:left">Do</th>' +
+          '<th style="padding:8px;text-align:left">Status</th>' +
+          '<th style="padding:8px;text-align:left">Treść</th>' +
+          '</tr></thead><tbody>' +
+          logs.map((l, i) => {
+            const dt = new Date(l.timestamp).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' });
+            const bg = i % 2 === 0 ? 'var(--card)' : 'var(--mid)';
+            const sc = statusColor[l.status] || '#aaa';
+            const tl = typeLabel[l.type] || l.type;
+            return '<tr style="background:' + bg + '">' +
+              '<td style="padding:7px 8px;white-space:nowrap">' + dt + '</td>' +
+              '<td style="padding:7px 8px;white-space:nowrap">' + tl + '</td>' +
+              '<td style="padding:7px 8px">' + (l.to || '') + '</td>' +
+              '<td style="padding:7px 8px"><span style="color:' + sc + ';font-weight:600">' + (l.status || '') + '</span></td>' +
+              '<td style="padding:7px 8px;max-width:400px;word-break:break-word">' + (l.body || '').replace(/</g,'&lt;') + '</td>' +
+              '</tr>';
+          }).join('') +
+          '</tbody></table>';
+      } catch(e) {
+        table.innerHTML = '<p style="color:var(--red)">Błąd: ' + e.message + '</p>';
+      }
+    }
+
+    async function clearSmsLog() {
+      if (!confirm('Czy na pewno wyczyścić cały log SMS?')) return;
+      const pwd = document.getElementById('adminPassword')?.value || localStorage.getItem('adminPwd') || '';
+      try {
+        const r = await fetch('/api/sms-log?adminPassword=' + encodeURIComponent(pwd), { method: 'DELETE' });
+        const d = await r.json();
+        if (d.success) { loadSmsLog(); }
+        else alert('Błąd: ' + (d.error || 'nieznany'));
+      } catch(e) { alert('Błąd: ' + e.message); }
+    }
+
 </script>
 </body>
 </html>
