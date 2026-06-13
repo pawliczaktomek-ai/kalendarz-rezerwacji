@@ -629,6 +629,19 @@ await appendSmsLog(booking.phone, cancelBody, 'anulowanie');
 await appendSmsLog(booking.phone, cancelBody, 'anulowanie-błąd');
 }
 }
+// SMS do trenera o anulowaniu rezerwacji
+const trainerCancelNum = slot.trainerPhone
+  || (slot.trainer && TRAINER_PHONES[slot.trainer])
+  || null;
+if (trainerCancelNum) {
+  const trainerCancelBody = `Anulowanie rezerwacji przez uczestnika: ${booking.name} (${booking.phone}) - ${formatDate(new Date(slot.start))}`;
+  try {
+    await sendSMS(trainerCancelNum, trainerCancelBody);
+    await appendSmsLog(trainerCancelNum, trainerCancelBody, 'sent');
+  } catch(e) {
+    await appendSmsLog(trainerCancelNum, trainerCancelBody, 'error: ' + e.message);
+  }
+}
 
 res.json({ success: true });
 });
