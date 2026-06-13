@@ -143,7 +143,6 @@ fields: 'id',
 _driveFileId = res.data.id;
 console.log(`[OK] Google Drive - stworzono plik danych (id: ${_driveFileId})`);
 }
-return;
 } catch (e) {
 console.error('Drive saveData błąc:', e.message);
 // Fallback do pliku lokalnego
