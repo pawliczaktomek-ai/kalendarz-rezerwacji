@@ -730,15 +730,15 @@ async function restoreSlots() {
   if (data._dataRestored || (data.slots && data.slots.length > 0)) return;
   console.log('[restore] Brak slotów – odtwarzanie harmonogramu...');
   data.slots = [
-    { id: uuidv4(), start: '2026-06-16T16:00:00.000Z', end: '2026-06-16T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-18T16:00:00.000Z', end: '2026-06-18T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-21T08:00:00.000Z', end: '2026-06-21T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-23T16:00:00.000Z', end: '2026-06-23T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-25T16:00:00.000Z', end: '2026-06-25T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-28T08:00:00.000Z', end: '2026-06-28T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-06-30T16:00:00.000Z', end: '2026-06-30T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-07-02T16:00:00.000Z', end: '2026-07-02T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
-    { id: uuidv4(), start: '2026-07-05T08:00:00.000Z', end: '2026-07-05T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: null, location: null },
+    { id: uuidv4(), start: '2026-06-16T16:00:00.000Z', end: '2026-06-16T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-18T16:00:00.000Z', end: '2026-06-18T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-21T08:00:00.000Z', end: '2026-06-21T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-23T16:00:00.000Z', end: '2026-06-23T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-25T16:00:00.000Z', end: '2026-06-25T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-28T08:00:00.000Z', end: '2026-06-28T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-06-30T16:00:00.000Z', end: '2026-06-30T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-07-02T16:00:00.000Z', end: '2026-07-02T17:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
+    { id: uuidv4(), start: '2026-07-05T08:00:00.000Z', end: '2026-07-05T09:00:00.000Z', bookings: [], eventType: 'trening', trainer: 'Tomasz Pawliczak', location: 'Boisko SP11, ul. Spawaczy, Zielona Góra' },
   ];
   data._dataRestored = true;
   await saveData(data);
