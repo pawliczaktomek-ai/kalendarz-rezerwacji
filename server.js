@@ -753,6 +753,21 @@ async function restoreSlots() {
     console.error('[startup] blad:', e.message);
   }
 })();
+
+// ── Test SMS (tymczasowy diagnostyczny) ──────────────────
+app.get('/api/test-sms', async (req, res) => {
+  if (req.query.adminPassword !== process.env.ADMIN_PASSWORD) return res.status(401).json({error:'Błędne hasło'});
+  const testTo = req.query.to || '+48607457102';
+  const result = { twilioConfigured: !!twilioClient, from: process.env.TWILIO_PHONE_NUMBER || 'BRAK', to: testTo };
+  if (!twilioClient) { result.error = 'twilioClient jest null'; return res.json(result); }
+  try {
+    const msg = await twilioClient.messages.create({ body: 'Test SMS CSPilkarza', to: testTo, from: process.env.TWILIO_PHONE_NUMBER });
+    result.success = true; result.sid = msg.sid; result.status = msg.status;
+  } catch(e) {
+    result.success = false; result.errorCode = e.code; result.errorMessage = e.message; result.moreInfo = e.moreInfo;
+  }
+  res.json(result);
+});
 app.listen(PORT, () => {
 console.log(`\nKalendarz rezerwacji dziala na http://localhost:${PORT}`);
 console.log(`Haslo admina: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
